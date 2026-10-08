@@ -1,7 +1,8 @@
 "use client";
 
 import clsx from "clsx";
-import { ChevronLeft, CreditCard, Landmark, Smartphone } from "lucide-react";
+import { format, parseISO, subDays } from "date-fns";
+import { ArrowLeft, CreditCard, Landmark, Smartphone } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -14,9 +15,23 @@ import { Calendar } from "@/components/ui/Calendar";
 import { Modal } from "@/components/ui/Modal";
 import { Button, RatingStar, Skeleton } from "@/components/ui/primitives";
 import { api, ApiError } from "@/lib/api";
-import { imageUrl, listingHeadline, longDate, rating } from "@/lib/format";
-import { guestLabel, readSearch, searchToParams, type Guests } from "@/lib/search";
+import { imageUrl, plural, rating, shortRange } from "@/lib/format";
+import { readSearch, searchToParams, type Guests } from "@/lib/search";
 import type { Availability, ListingDetail, Quote } from "@/lib/types";
+
+type Step = "login" | "payment" | "review";
+
+const money2 = (n: number) =>
+  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: 2 }).format(n);
+
+/** "1 adult, 2 children, 1 infant", like Airbnb's checkout. */
+function guestSummary(g: Guests) {
+  const parts = [plural(Math.max(1, g.adults), "adult")];
+  if (g.children) parts.push(plural(g.children, "child", "children"));
+  if (g.infants) parts.push(plural(g.infants, "infant"));
+  if (g.pets) parts.push(plural(g.pets, "pet"));
+  return parts.join(", ");
+}
 
 const PAYMENT_METHODS = [
   { id: "upi", label: "UPI", icon: <Smartphone size={20} /> },
@@ -44,6 +59,8 @@ export function CheckoutView({ listingId }: { listingId: string }) {
   const [editing, setEditing] = useState<"dates" | "guests" | null>(null);
   const [draftDates, setDraftDates] = useState<[string | null, string | null]>([checkIn, checkOut]);
   const [payWith, setPayWith] = useState("upi");
+  const [step, setStep] = useState<Step>("payment");
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -107,116 +124,213 @@ export function CheckoutView({ listingId }: { listingId: string }) {
     );
 
   const allowPets = listing.amenities.some((a) => a.name === "Pets allowed");
-  const card = "rounded-xl border border-line p-6";
+
+  // Airbnb-style stepper: one step open at a time, finished steps collapse with a summary.
+  const steps: Step[] = user ? ["payment", "review"] : ["login", "payment", "review"];
+  const current: Step = !user ? "login" : step === "login" ? "payment" : step;
+  const method = PAYMENT_METHODS.find((m) => m.id === payWith)!;
+  const deadline = checkIn ? format(subDays(parseISO(checkIn), 1), "d MMMM") : null;
+
+  const stepCard = (id: Step, title: string, body: React.ReactNode, summary?: React.ReactNode, action?: React.ReactNode) => {
+    const n = steps.indexOf(id) + 1;
+    const active = current === id;
+    const done = steps.indexOf(id) < steps.indexOf(current);
+    return (
+      <section
+        key={id}
+        className={clsx(
+          "rounded-3xl border p-8 transition",
+          active ? "border-transparent shadow-[0_6px_20px_rgb(0_0_0/0.12)]" : "border-line",
+        )}
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className={clsx("text-[22px] font-medium", !active && !done && "text-fg")}>
+              {n}. {title}
+            </h2>
+            {done && summary && <div className="mt-1 text-fg-secondary">{summary}</div>}
+          </div>
+          {active && action}
+          {done && (
+            <button onClick={() => setStep(id)} className="rounded-lg bg-[#f2f2f2] px-4 py-2 text-sm font-medium text-[#222] hover:bg-[#ebebeb]">
+              Change
+            </button>
+          )}
+        </div>
+        {active && body}
+      </section>
+    );
+  };
+
+  const changeButton = "h-fit rounded-lg bg-[#f2f2f2] px-4 py-2 text-sm font-medium text-[#222] hover:bg-[#ebebeb] dark:bg-bg-secondary dark:text-fg";
 
   return (
-    <div className="pb-16 pt-6 md:pt-12">
-      <div className="mb-8 flex items-center gap-4 md:-ml-14">
-        <Link href={`/rooms/${listing.id}?${new URLSearchParams(searchToParams({ checkIn, checkOut, ...guests }))}`} aria-label="Back" className="grid h-10 w-10 place-items-center rounded-full hover:bg-bg-hover">
-          <ChevronLeft size={20} />
+    <div className="pb-16 pt-6 md:pt-10">
+      <div className="mb-8 flex items-center gap-6 md:-ml-24">
+        <Link
+          href={`/rooms/${listing.id}?${new URLSearchParams(searchToParams({ checkIn, checkOut, ...guests }))}`}
+          aria-label="Back"
+          className="grid h-14 w-14 place-items-center rounded-full bg-[#f7f7f7] text-[#222] hover:bg-[#ebebeb] dark:bg-bg-secondary dark:text-fg"
+        >
+          <ArrowLeft size={20} />
         </Link>
-        <h1 className="text-[26px] font-medium md:text-[32px]">Confirm and pay</h1>
+        <h1 className="text-[32px] font-semibold tracking-tight md:text-[40px]">Confirm and pay</h1>
       </div>
 
-      <div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-24">
-        <div className="space-y-4 md:order-1">
-          {!user && !authLoading && (
-            <section className={card}>
-              <h2 className="text-lg font-semibold">1. Log in or sign up</h2>
-              <p className="mt-1 text-sm text-fg-secondary">You need an account to book this place.</p>
-              <Button className="mt-4" onClick={openLogin}>
+      <div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-28">
+        <div className="space-y-6 md:order-1">
+          {!user &&
+            stepCard(
+              "login",
+              "Log in or sign up",
+              null,
+              undefined,
+              <Button variant="primary" size="lg" className="!rounded-xl px-8" onClick={openLogin} disabled={authLoading}>
                 Continue
-              </Button>
-            </section>
+              </Button>,
+            )}
+
+          {stepCard(
+            "payment",
+            "Add a payment method",
+            <div className="mt-6">
+              <p className="mb-4 text-sm text-fg-secondary">Payments are simulated in this demo: no money moves and no card details are collected.</p>
+              <div className="space-y-2">
+                {PAYMENT_METHODS.map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => setPayWith(m.id)}
+                    className={clsx("flex w-full items-center gap-4 rounded-xl border p-4 text-left", payWith === m.id ? "border-fg ring-1 ring-fg" : "border-line")}
+                  >
+                    {m.icon}
+                    <span className="flex-1 font-medium">{m.label}</span>
+                    <span className={clsx("h-5 w-5 rounded-full border", payWith === m.id ? "border-[6px] border-fg" : "border-line")} />
+                  </button>
+                ))}
+              </div>
+              <div className="mt-6 flex justify-end">
+                <Button size="lg" className="!rounded-xl px-8" onClick={() => setStep("review")}>
+                  Next
+                </Button>
+              </div>
+            </div>,
+            <span className="flex items-center gap-2">
+              {method.icon} {method.label}
+            </span>,
           )}
 
-          <section className={card}>
-            <h2 className="mb-4 text-lg font-semibold">{user ? "1." : "2."} Choose when to pay</h2>
-            <label className="flex cursor-pointer items-center justify-between rounded-lg border border-fg p-4">
-              <span>
-                <span className="block font-semibold">Pay {quote ? `₹${quote.total.toLocaleString("en-IN")}` : ""} now</span>
-                <span className="text-sm text-fg-secondary">Pay the total now and you&apos;re all set.</span>
-              </span>
-              <input type="radio" defaultChecked name="when" className="h-5 w-5 accent-fg" />
-            </label>
-          </section>
-
-          <section className={card}>
-            <h2 className="mb-1 text-lg font-semibold">{user ? "2." : "3."} Add a payment method</h2>
-            <p className="mb-4 text-sm text-fg-secondary">Payments are simulated in this demo: no money moves and no card details are collected.</p>
-            <div className="space-y-2">
-              {PAYMENT_METHODS.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => setPayWith(m.id)}
-                  className={clsx("flex w-full items-center gap-4 rounded-lg border p-4 text-left", payWith === m.id ? "border-fg ring-1 ring-fg" : "border-line")}
-                >
-                  {m.icon}
-                  <span className="flex-1 font-medium">{m.label}</span>
-                  <span className={clsx("h-5 w-5 rounded-full border", payWith === m.id ? "border-[6px] border-fg" : "border-line")} />
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className={card}>
-            <h2 className="mb-2 text-lg font-semibold">{user ? "3." : "4."} Review your reservation</h2>
-            <p className="mb-6 text-xs text-fg-secondary">
-              By selecting the button, I agree to the booking terms and the host&apos;s house rules. Free cancellation before check-in.
-            </p>
-            <Button variant="primary" size="lg" className="w-full md:w-auto" loading={submitting} disabled={!quote?.available} onClick={confirm}>
-              {user ? "Confirm and pay" : "Log in to book"}
-            </Button>
-            {quote && !quote.available && <p className="mt-3 text-sm text-error">These dates are no longer available. Change your dates to continue.</p>}
-          </section>
+          {stepCard(
+            "review",
+            "Review your reservation",
+            <div className="mt-4">
+              <p className="mb-6 text-sm text-fg-secondary">
+                By selecting the button, I agree to the booking terms and the host&apos;s house rules.{" "}
+                {deadline && `Free cancellation before 1:00 pm on ${deadline}.`}
+              </p>
+              <Button variant="primary" size="lg" className="w-full !rounded-xl" loading={submitting} disabled={!quote?.available} onClick={confirm}>
+                Confirm and pay
+              </Button>
+              {quote && !quote.available && (
+                <p className="mt-3 text-sm text-error">These dates are no longer available. Change your dates to continue.</p>
+              )}
+            </div>,
+          )}
         </div>
 
         <aside className="md:order-2">
-          <div className={clsx(card, "sticky top-28")}>
-            <div className="flex gap-4 border-b border-line-light pb-6">
+          <div className="sticky top-28 rounded-3xl border border-line p-8">
+            <div className="flex items-center gap-5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl(listing.photos[0], 300)} alt="" className="h-24 w-28 shrink-0 rounded-lg object-cover" />
+              <img src={imageUrl(listing.photos[0], 300)} alt="" className="h-28 w-28 shrink-0 rounded-xl object-cover" />
               <div className="min-w-0">
-                <h3 className="font-semibold leading-5">{listing.title}</h3>
-                <p className="text-sm text-fg-secondary">{listingHeadline(listing)}</p>
+                <h3 className="text-lg font-medium leading-6">{listing.title}</h3>
                 {listing.average_rating && (
-                  <p className="mt-1 flex items-center gap-1 text-sm">
-                    <RatingStar size={12} /> {rating(listing.average_rating)} ({listing.review_count}){listing.is_guest_favourite && " · Guest favourite"}
+                  <p className="mt-1 flex flex-wrap items-center gap-x-3 text-sm">
+                    <span className="flex items-center gap-1">
+                      <RatingStar size={12} /> {rating(listing.average_rating)} ({listing.review_count})
+                    </span>
+                    {listing.is_guest_favourite && <span className="font-medium">🏆 Guest favourite</span>}
                   </p>
                 )}
               </div>
             </div>
-            <div className="border-b border-line-light py-6 text-sm">
-              <p className="font-semibold">Free cancellation</p>
-              <p className="text-fg-secondary">Cancel before check-in for a full refund.</p>
+
+            <div className="border-b border-line-light py-6">
+              <p className="font-medium">Free cancellation</p>
+              <p>
+                {deadline ? `Cancel before 1:00 pm on ${deadline} for a full refund. ` : "Cancel before check-in for a full refund. "}
+                <Link href="/help" className="font-medium underline">
+                  Full policy
+                </Link>
+              </p>
             </div>
-            <div className="space-y-4 border-b border-line-light py-6">
-              <div className="flex justify-between">
-                <div>
-                  <div className="font-semibold">Dates</div>
-                  <div className="text-fg-secondary">{checkIn && checkOut ? `${longDate(checkIn)} – ${longDate(checkOut)}` : "Add dates"}</div>
-                </div>
-                <button className="h-fit rounded-lg bg-bg-secondary px-4 py-2 text-sm font-semibold hover:bg-line-light" onClick={() => { setDraftDates([checkIn, checkOut]); setEditing("dates"); }}>
-                  Change
-                </button>
+            <div className="flex items-start justify-between border-b border-line-light py-6">
+              <div>
+                <div className="font-medium">Dates</div>
+                <div>{checkIn && checkOut ? shortRange(checkIn, checkOut) + " " + format(parseISO(checkOut), "yyyy") : "Add dates"}</div>
               </div>
-              <div className="flex justify-between">
-                <div>
-                  <div className="font-semibold">Guests</div>
-                  <div className="text-fg-secondary">{guestLabel(guests)}</div>
-                </div>
-                <button className="h-fit rounded-lg bg-bg-secondary px-4 py-2 text-sm font-semibold hover:bg-line-light" onClick={() => setEditing("guests")}>
-                  Change
-                </button>
+              <button className={changeButton} onClick={() => { setDraftDates([checkIn, checkOut]); setEditing("dates"); }}>
+                Change
+              </button>
+            </div>
+            <div className="flex items-start justify-between border-b border-line-light py-6">
+              <div>
+                <div className="font-medium">Guests</div>
+                <div>{guestSummary(guests)}</div>
               </div>
+              <button className={changeButton} onClick={() => setEditing("guests")}>
+                Change
+              </button>
             </div>
             <div className="pt-6">
-              <h3 className="mb-4 font-semibold">Price details</h3>
-              {quote ? <PriceBreakdown q={quote} totalLabel="Total INR" /> : <p className="text-sm text-fg-secondary">Add dates to see the total.</p>}
+              <h3 className="mb-4 font-medium">Price details</h3>
+              {quote ? (
+                <>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>{plural(quote.nights, "night")} x {money2(quote.nightly_rate)}</span>
+                      <span>{money2(quote.subtotal)}</span>
+                    </div>
+                    {quote.cleaning_fee > 0 && (
+                      <div className="flex justify-between">
+                        <span>Cleaning fee</span>
+                        <span>{money2(quote.cleaning_fee)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span>Airbnb service fee</span>
+                      <span>{money2(quote.service_fee)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Taxes</span>
+                      <span>{money2(quote.taxes)}</span>
+                    </div>
+                  </div>
+                  <div className="mt-5 flex justify-between border-t border-line-light pt-5 font-medium">
+                    <span>
+                      Total <span className="underline">INR</span>
+                    </span>
+                    <span>{money2(quote.total)}</span>
+                  </div>
+                  <button onClick={() => setBreakdownOpen(true)} className="mt-4 font-medium underline">
+                    Price breakdown
+                  </button>
+                </>
+              ) : (
+                <p className="text-sm text-fg-secondary">Add dates to see the total.</p>
+              )}
             </div>
           </div>
         </aside>
       </div>
+
+      <Modal open={breakdownOpen} onClose={() => setBreakdownOpen(false)} title="Price breakdown" size="sm">
+        {quote && <PriceBreakdown q={quote} totalLabel="Total INR" />}
+        <p className="mt-6 text-sm text-fg-secondary">
+          The service fee helps Airbnb run the platform. Taxes are calculated on the nightly price plus cleaning fee. The host sets the
+          nightly price and cleaning fee.
+        </p>
+      </Modal>
 
       <Modal
         open={editing === "dates"}

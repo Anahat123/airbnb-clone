@@ -72,8 +72,12 @@ export function GuestFavouriteBanner({ listing }: { listing: ListingDetail }) {
 }
 
 export function HostedBy({ host }: { host: HostSummary }) {
+  const goToHost = () => {
+    const el = document.getElementById("host");
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 90, behavior: "smooth" });
+  };
   return (
-    <div className="flex items-center gap-6 py-6">
+    <button type="button" onClick={goToHost} className="flex w-full items-center gap-6 py-6 text-left" aria-label={`About ${host.name}`}>
       <div className="relative">
         <Avatar user={host} size={40} />
         {host.is_superhost && (
@@ -89,7 +93,7 @@ export function HostedBy({ host }: { host: HostSummary }) {
           {yearsSince(host.created_at)}
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -195,7 +199,7 @@ export function MeetHost({ host }: { host: HostSummary }) {
   const toast = useToast();
   const years = Math.max(1, yearsSinceCount(host.created_at));
   return (
-    <section className="border-t border-line-light py-12">
+    <section id="host" className="border-t border-line-light py-12">
       <h2 className="mb-8 text-[22px] font-medium">Meet your host</h2>
       <div className="grid gap-10 md:grid-cols-[minmax(0,380px)_1fr]">
         <div className="grid grid-cols-[1fr_auto] items-center gap-6 rounded-3xl bg-bg-elevated p-8 shadow-[0_6px_20px_rgb(0_0_0/0.2)]">

@@ -15,7 +15,7 @@ export default function BookPage({ params }: PageProps<"/book/[id]">) {
   return (
     <>
       <Suspense fallback={<HeaderFallback />}>
-        <Header variant="minimal" />
+        <Header variant="minimal" wide logoOnly />
       </Suspense>
       <main className="mx-auto max-w-[1120px] px-6 md:px-20 xl:px-0">
         <Suspense>

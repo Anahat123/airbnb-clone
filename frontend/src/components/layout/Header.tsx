@@ -32,10 +32,13 @@ export function Header({
   variant = "compact",
   sticky = true,
   wide = false,
+  logoOnly = false,
 }: {
   variant?: "expanded" | "compact" | "minimal";
   sticky?: boolean;
   wide?: boolean;
+  /** Checkout shows just the logo, like Airbnb's. */
+  logoOnly?: boolean;
 }) {
   const pathname = usePathname();
   const params = useSearchParams();
@@ -152,9 +155,11 @@ export function Header({
             </div>
           )}
 
-          <div className="hidden flex-1 justify-end md:flex">
-            <UserMenu hosting={hosting} />
-          </div>
+          {!logoOnly && (
+            <div className="hidden flex-1 justify-end md:flex">
+              <UserMenu hosting={hosting} />
+            </div>
+          )}
         </div>
 
         {variant === "expanded" && (
