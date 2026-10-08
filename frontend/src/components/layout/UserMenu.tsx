@@ -27,7 +27,8 @@ export function UserMenu({ hosting = false }: { hosting?: boolean }) {
 
   async function switchToHosting() {
     setOpen(false);
-    if (!user) return openLogin();
+    // Logged out: Airbnb sends you to its full-page login, then on to hosting.
+    if (!user) return router.push("/login?next=/host&host=1");
     if (!user.is_host) {
       await becomeHost();
       toast({ message: "You're now a host. Create your first listing!" });

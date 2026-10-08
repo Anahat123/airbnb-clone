@@ -121,7 +121,7 @@ seed.py          deterministic seed data (dates relative to today)
 ```
 app/                  routes: / (All) · /homes · /s · /rooms/[id] · /book/[id] · /trips · /trips/[id]
                       /wishlists · /wishlists/[id] · /host · /host/listings(/new, /[id]/edit)
-                      /host/reservations · /users/[id] (host profile) · /account · coming-soon pages
+                      /host/reservations · /users/[id] (host profile) · /login · /account · coming-soon pages
 components/
   layout/             Header (expanding search), UserMenu, Footer, MobileNav
   search/             SearchBar, MobileSearch, CategoryBar, FiltersModal, PriceRange, Pagination
