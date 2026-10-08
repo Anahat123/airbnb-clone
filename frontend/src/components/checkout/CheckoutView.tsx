@@ -115,7 +115,7 @@ export function CheckoutView({ listingId }: { listingId: string }) {
         <Link href={`/rooms/${listing.id}?${new URLSearchParams(searchToParams({ checkIn, checkOut, ...guests }))}`} aria-label="Back" className="grid h-10 w-10 place-items-center rounded-full hover:bg-bg-hover">
           <ChevronLeft size={20} />
         </Link>
-        <h1 className="text-[26px] font-semibold md:text-[32px]">Confirm and pay</h1>
+        <h1 className="text-[26px] font-medium md:text-[32px]">Confirm and pay</h1>
       </div>
 
       <div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-24">

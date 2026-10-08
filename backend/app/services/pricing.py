@@ -5,7 +5,7 @@ sees and the amount saved on the booking can never drift apart.
 """
 
 from dataclasses import asdict, dataclass
-from datetime import date
+from datetime import date, timedelta
 
 from ..config import settings
 
@@ -26,6 +26,12 @@ class PriceQuote:
 
 def nights_between(check_in: date, check_out: date) -> int:
     return (check_out - check_in).days
+
+
+def one_night(nightly_rate: int, cleaning_fee: int) -> PriceQuote:
+    """All-in price of a single night, shown on cards before dates are chosen."""
+    today = date.today()
+    return quote(nightly_rate, cleaning_fee, today, today + timedelta(days=1))
 
 
 def quote(nightly_rate: int, cleaning_fee: int, check_in: date, check_out: date) -> PriceQuote:

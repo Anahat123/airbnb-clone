@@ -126,7 +126,7 @@ function PhotoTour({
         </div>
       </div>
       <div className="mx-auto max-w-[760px] px-6 pb-16">
-        <h2 className="mb-6 text-[26px] font-semibold">Photo tour</h2>
+        <h2 className="mb-6 text-[26px] font-medium">Photo tour</h2>
         <div className="grid grid-cols-2 gap-2">
           {photos.map((src, i) => (
             <button key={i} onClick={() => onOpen(i)} className={clsx("overflow-hidden", i % 3 === 0 ? "col-span-2 aspect-[3/2]" : "aspect-square")}>

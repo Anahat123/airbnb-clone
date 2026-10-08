@@ -25,10 +25,12 @@ def listing_cards(
     cards = []
     for listing in listings:
         stats = listing_stats.get(listing.id, ratings.EMPTY)
-        total = nights = None
+        # Like airbnb.co.in, cards show the all-in price: for the searched dates, or for one night.
         if check_in and check_out and check_out > check_in:
             q = pricing.quote(listing.price_per_night, listing.cleaning_fee, check_in, check_out)
-            total, nights = q.total, q.nights
+        else:
+            q = pricing.one_night(listing.price_per_night, listing.cleaning_fee)
+        total, nights = q.total, q.nights
         cards.append(
             schemas.ListingCard(
                 id=listing.id,

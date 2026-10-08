@@ -64,7 +64,7 @@ export function Reviews({ listing }: { listing: ListingDetail }) {
   if (!listing.review_count)
     return (
       <section id="reviews" className="border-t border-line-light py-12">
-        <h2 className="flex items-center gap-2 text-[22px] font-semibold">
+        <h2 className="flex items-center gap-2 text-[22px] font-medium">
           <RatingStar size={18} /> No reviews (yet)
         </h2>
         <p className="mt-2 text-fg-secondary">This place is new. Be one of the first guests to stay and leave a review.</p>
@@ -81,11 +81,11 @@ export function Reviews({ listing }: { listing: ListingDetail }) {
           <Laurels size="lg">
             <span className="text-[64px] font-semibold leading-none tracking-tight md:text-[88px]">{rating(listing.average_rating)}</span>
           </Laurels>
-          <h2 className="mt-2 text-[22px] font-semibold">Guest favourite</h2>
+          <h2 className="mt-2 text-[22px] font-medium">Guest favourite</h2>
           <p className="mx-auto mt-1 max-w-xs text-fg-secondary">One of the most loved homes on Airbnb based on ratings, reviews and reliability</p>
         </div>
       ) : (
-        <h2 className="mb-8 flex items-center gap-2 text-[22px] font-semibold">
+        <h2 className="mb-8 flex items-center gap-2 text-[22px] font-medium">
           <RatingStar size={18} /> {rating(listing.average_rating)} · {listing.review_count} reviews
         </h2>
       )}

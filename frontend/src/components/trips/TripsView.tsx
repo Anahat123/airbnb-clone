@@ -31,7 +31,7 @@ function UpcomingCard({ trip }: { trip: Booking }) {
     <Link href={`/trips/${trip.id}`} className="grid overflow-hidden rounded-2xl border border-line-light shadow-card transition hover:shadow-pop sm:grid-cols-[1fr_1.1fr]">
       <div className="flex flex-col justify-between p-6">
         <div>
-          <h3 className="text-[22px] font-semibold">{trip.listing.city}</h3>
+          <h3 className="text-[22px] font-medium">{trip.listing.city}</h3>
           <p className="text-sm text-fg-secondary">
             {trip.listing.property_type} hosted by {trip.listing.host_name}
           </p>
@@ -117,7 +117,7 @@ export function TripsView() {
       )}
 
       <section>
-        <h2 className="mb-6 text-[22px] font-semibold">Upcoming reservations</h2>
+        <h2 className="mb-6 text-[22px] font-medium">Upcoming reservations</h2>
         {upcoming.length ? (
           <div className="grid gap-6 lg:grid-cols-2">
             {upcoming.map((t) => (
@@ -137,7 +137,7 @@ export function TripsView() {
 
       {past.length > 0 && (
         <section>
-          <h2 className="mb-6 text-[22px] font-semibold">Where you&apos;ve been</h2>
+          <h2 className="mb-6 text-[22px] font-medium">Where you&apos;ve been</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {past.map((t) => (
               <PastCard key={t.id} trip={t} onReview={setReviewing} />
@@ -148,7 +148,7 @@ export function TripsView() {
 
       {cancelled.length > 0 && (
         <section>
-          <h2 className="mb-6 text-[22px] font-semibold">Cancelled</h2>
+          <h2 className="mb-6 text-[22px] font-medium">Cancelled</h2>
           <div className="grid gap-6 opacity-70 sm:grid-cols-2 lg:grid-cols-3">
             {cancelled.map((t) => (
               <PastCard key={t.id} trip={t} />

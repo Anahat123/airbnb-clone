@@ -129,7 +129,7 @@ export function FiltersModal({
       }
     >
       <section className="pb-8">
-        <h3 className="mb-4 text-[22px] font-semibold">Recommended for you</h3>
+        <h3 className="mb-4 text-[22px] font-medium">Recommended for you</h3>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {RECOMMENDED.map((name) => meta.amenities.find((a) => a.name === name))
             .filter((a) => a !== undefined)
@@ -151,7 +151,7 @@ export function FiltersModal({
       <Divider />
 
       <section className="py-8">
-        <h3 className="mb-4 text-[22px] font-semibold">Type of place</h3>
+        <h3 className="mb-4 text-[22px] font-medium">Type of place</h3>
         <div className="grid grid-cols-3 rounded-2xl bg-bg-secondary p-1 text-sm font-semibold">
           {([
             [null, "Any type"],
@@ -171,14 +171,14 @@ export function FiltersModal({
       <Divider />
 
       <section className="py-8">
-        <h3 className="text-[22px] font-semibold">Price range</h3>
+        <h3 className="text-[22px] font-medium">Price range</h3>
         <p className="mb-6 text-sm text-fg-secondary">Nightly prices before fees</p>
         <PriceRangeSection meta={meta} draft={draft} set={set} />
       </section>
       <Divider />
 
       <section className="py-8">
-        <h3 className="mb-2 text-[22px] font-semibold">Rooms and beds</h3>
+        <h3 className="mb-2 text-[22px] font-medium">Rooms and beds</h3>
         <Counter label="Bedrooms" value={draft.bedrooms} max={8} onChange={(n) => set({ bedrooms: n })} />
         <Counter label="Beds" value={draft.beds} max={8} onChange={(n) => set({ beds: n })} />
         <Counter label="Bathrooms" value={draft.bathrooms} max={8} onChange={(n) => set({ bathrooms: n })} />
@@ -186,7 +186,7 @@ export function FiltersModal({
       <Divider />
 
       <section className="py-8">
-        <h3 className="mb-4 text-[22px] font-semibold">Amenities</h3>
+        <h3 className="mb-4 text-[22px] font-medium">Amenities</h3>
         {Object.entries(amenityGroups).map(([group, items]) => (
           <div key={group} className="mb-6">
             <h4 className="mb-3 font-semibold">{group}</h4>
@@ -204,7 +204,7 @@ export function FiltersModal({
       <Divider />
 
       <section className="py-8">
-        <h3 className="mb-4 text-[22px] font-semibold">Booking options</h3>
+        <h3 className="mb-4 text-[22px] font-medium">Booking options</h3>
         <label className="flex cursor-pointer items-center justify-between">
           <span>
             <span className="block font-semibold">Guest favourite</span>
@@ -222,7 +222,7 @@ export function FiltersModal({
       <Divider />
 
       <section className="pt-8">
-        <h3 className="mb-4 text-[22px] font-semibold">Property type</h3>
+        <h3 className="mb-4 text-[22px] font-medium">Property type</h3>
         <div className="flex flex-wrap gap-3">
           {meta.property_types.map((p) => (
             <button key={p} className={chip(draft.property_types.includes(p))} onClick={() => set({ property_types: toggle(draft.property_types, p) })}>

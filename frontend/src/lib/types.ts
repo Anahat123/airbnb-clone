@@ -84,6 +84,7 @@ export interface Paginated {
 
 export interface HomeSection {
   title: string;
+  subtitle: string;
   city: string;
   items: ListingCard[];
 }

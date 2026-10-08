@@ -50,7 +50,7 @@ async function ListingContent({ params }: { params: Promise<{ id: string }> }) {
   return (
     <BookingProvider listing={listing} availability={availability}>
       <div className="flex items-end justify-between gap-4 pb-6 pt-6 max-md:-order-1">
-        <h1 className="text-[22px] font-semibold md:text-[26px]">{listing.title}</h1>
+        <h1 className="text-[22px] font-medium md:text-[26px]">{listing.title}</h1>
         <TitleActions listingId={listing.id} photos={listing.photos} />
       </div>
       <div className="relative max-md:-order-2">
@@ -66,8 +66,8 @@ async function ListingContent({ params }: { params: Promise<{ id: string }> }) {
 
       <div className="grid gap-x-20 md:grid-cols-[minmax(0,1fr)_minmax(0,372px)] lg:gap-x-24">
         <div>
-          <section className="py-8">
-            <h2 className="text-[22px] font-semibold">
+          <section className="pb-8 pt-2 md:pt-8">
+            <h2 className="text-[22px] font-medium">
               {kind} in {listing.city}, {listing.country}
             </h2>
             <p className="mt-1">

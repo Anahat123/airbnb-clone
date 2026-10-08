@@ -16,6 +16,15 @@ from ..services import availability, pricing, ratings
 router = APIRouter(prefix="/api", tags=["listings"])
 
 PROPERTY_TYPES = ["House", "Flat", "Villa", "Cabin", "Cottage", "Guest house", "Farm stay", "Treehouse", "Room"]
+CITY_BLURBS = {
+    "Goa": "Beach shacks, villas and Portuguese-era homes",
+    "Manali": "Cabins and cottages in the Himalayas",
+    "Jaipur": "Havelis and homes in the Pink City",
+    "Udaipur": "Lakeside stays in the City of Lakes",
+    "Mumbai": "Flats close to the sea and the city",
+    "Bengaluru": "Garden city homes for work and play",
+    "Lonavala": "Weekend villas in the Western Ghats",
+}
 HOME_SECTION_TITLES = [
     "Popular homes in {city}",
     "Available next month in {city}",
@@ -113,7 +122,10 @@ def home_sections(db: Session = Depends(get_db)):
             .limit(10)
         ).all()
         title = HOME_SECTION_TITLES[i % len(HOME_SECTION_TITLES)].format(city=city)
-        sections.append(schemas.HomeSection(title=title, city=city, items=serializers.listing_cards(db, listings)))
+        subtitle = CITY_BLURBS.get(city, "Guests often rate these homes highly")
+        sections.append(
+            schemas.HomeSection(title=title, subtitle=subtitle, city=city, items=serializers.listing_cards(db, listings))
+        )
     return sections
 
 

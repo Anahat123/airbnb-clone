@@ -68,7 +68,7 @@ export function TripDetail({ id }: { id: string }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imageUrl(trip.listing.photo ?? "", 1100)} alt="" className="aspect-[16/9] w-full object-cover" />
         </div>
-        <h1 className="mt-6 text-[26px] font-semibold">
+        <h1 className="mt-6 text-[26px] font-medium">
           {trip.status === "cancelled" ? "Cancelled: " : ""}
           {trip.listing.title}
         </h1>

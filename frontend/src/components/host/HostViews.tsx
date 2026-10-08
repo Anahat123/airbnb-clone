@@ -135,7 +135,7 @@ export function HostDashboard() {
           ? cards.map((c) => (
               <div key={c.label} className="rounded-2xl border border-line-light p-6">
                 <p className="text-sm text-fg-secondary">{c.label}</p>
-                <p className="mt-2 text-[26px] font-semibold">{c.value}</p>
+                <p className="mt-2 text-[26px] font-medium">{c.value}</p>
                 {c.sub && <p className="text-sm text-fg-secondary">{c.sub}</p>}
               </div>
             ))
@@ -144,7 +144,7 @@ export function HostDashboard() {
 
       <section>
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-[26px] font-semibold">Your reservations</h2>
+          <h2 className="text-[26px] font-medium">Your reservations</h2>
           <Link href="/host/reservations" className="font-semibold underline">
             All reservations ({bookings?.length ?? 0})
           </Link>

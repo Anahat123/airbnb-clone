@@ -5,6 +5,7 @@ import { Header, HeaderFallback } from "@/components/layout/Header";
 import { ListingCardSkeleton } from "@/components/listings/ListingCard";
 import { ListingRow } from "@/components/listings/ListingRow";
 import { ApiOffline } from "@/components/ui/ApiOffline";
+import { PricesIncludeFees } from "@/components/ui/PricesIncludeFees";
 import { api } from "@/lib/api";
 
 async function HomeSections() {
@@ -17,7 +18,7 @@ async function HomeSections() {
   return (
     <>
       {sections.map((s) => (
-        <ListingRow key={s.city} title={s.title} href={`/s?location=${encodeURIComponent(s.city)}`} items={s.items} />
+        <ListingRow key={s.city} title={s.title} subtitle={s.subtitle} href={`/s?location=${encodeURIComponent(s.city)}`} items={s.items} />
       ))}
     </>
   );
@@ -53,6 +54,7 @@ export default function HomePage() {
           <HomeSections />
         </Suspense>
       </main>
+      <PricesIncludeFees />
       <Footer />
     </>
   );

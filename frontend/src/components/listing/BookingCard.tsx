@@ -49,11 +49,11 @@ export function BookingCard() {
       <div className="rounded-xl border border-line-light p-6 shadow-card">
         {quote && checkIn && checkOut ? (
           <p className="mb-6">
-            <span className="text-[22px] font-semibold underline">{money(quote.total)}</span>{" "}
+            <span className="text-[22px] font-medium underline">{money(quote.total)}</span>{" "}
             <span className="text-fg-secondary">for {plural(quote.nights, "night")}</span>
           </p>
         ) : (
-          <p className="mb-6 text-[22px] font-semibold">
+          <p className="mb-6 text-[22px] font-medium">
             Add dates for prices
             <span className="ml-2 text-base font-normal text-fg-secondary">{money(listing.price_per_night)} night</span>
           </p>
@@ -75,7 +75,7 @@ export function BookingCard() {
               <div className="absolute -right-6 -top-6 z-[60] w-[min(680px,90vw)] rounded-2xl bg-bg-elevated p-8 shadow-pop">
                 <div className="mb-6 flex justify-between gap-6">
                   <div>
-                    <h3 className="text-[22px] font-semibold">
+                    <h3 className="text-[22px] font-medium">
                       {checkIn && checkOut ? plural(quote?.nights ?? 0, "night") : checkIn ? "Select checkout date" : "Select dates"}
                     </h3>
                     <p className="text-sm text-fg-secondary">

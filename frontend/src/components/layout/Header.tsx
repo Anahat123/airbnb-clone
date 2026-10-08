@@ -17,8 +17,8 @@ import { UserMenu } from "./UserMenu";
 
 const TABS = [
   { href: "/", label: "Homes", emoji: "🏡", match: (p: string) => p === "/" || p.startsWith("/s") },
-  { href: "/experiences", label: "Experiences", emoji: "🎈", badge: true, match: (p: string) => p.startsWith("/experiences") },
-  { href: "/services", label: "Services", emoji: "🛎️", badge: true, match: (p: string) => p.startsWith("/services") },
+  { href: "/experiences", label: "Experiences", emoji: "🎈", match: (p: string) => p.startsWith("/experiences") },
+  { href: "/services", label: "Services", emoji: "🛎️", match: (p: string) => p.startsWith("/services") },
 ];
 
 /**
@@ -76,10 +76,10 @@ export function Header({
         className={clsx(
           "z-[1000] w-full border-b border-line-light bg-bg transition-[height]",
           sticky ? "sticky top-0" : "relative",
-          big && variant !== "minimal" ? "md:pb-6" : "",
+          big && variant !== "minimal" ? "md:bg-gradient-to-b md:from-bg md:to-bg-secondary md:pb-8" : "",
         )}
       >
-        <div className={clsx("mx-auto flex h-20 items-center justify-between gap-4 px-6 md:px-10 xl:px-12", !wide && variant === "minimal" && "max-w-[1280px]")}>
+        <div className={clsx("mx-auto flex h-20 items-center md:h-24 justify-between gap-4 px-6 md:px-10 xl:px-12", !wide && variant === "minimal" && "max-w-[1280px]")}>
           <div className="hidden flex-1 md:flex">
             <Logo />
           </div>
@@ -120,14 +120,7 @@ export function Header({
                         t.match(pathname) ? "font-semibold text-fg" : "text-fg-secondary hover:text-fg",
                       )}
                     >
-                      <span className="relative text-[30px] leading-none transition-transform group-hover:scale-110">
-                        {t.emoji}
-                        {t.badge && (
-                          <span className="absolute -right-3 -top-2 rounded-full bg-[#3f5b84] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white">
-                            New
-                          </span>
-                        )}
-                      </span>
+                      <span className="text-[40px] leading-none transition-transform group-hover:scale-110">{t.emoji}</span>
                       {t.label}
                       {t.match(pathname) && <span className="absolute inset-x-2 bottom-0 h-[3px] rounded-full bg-fg" />}
                     </Link>
@@ -158,6 +151,25 @@ export function Header({
             <UserMenu hosting={hosting} />
           </div>
         </div>
+
+        {variant === "expanded" && (
+          <nav className="flex justify-center gap-6 pb-3 md:hidden" aria-label="Search categories">
+            {TABS.map((t) => (
+              <Link
+                key={t.label}
+                href={t.href}
+                className={clsx(
+                  "relative flex flex-col items-center gap-1 pb-2 text-xs",
+                  t.match(pathname) ? "font-semibold text-fg" : "text-fg-secondary",
+                )}
+              >
+                <span className="text-[32px] leading-none">{t.emoji}</span>
+                {t.label}
+                {t.match(pathname) && <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-fg" />}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         {big && variant !== "minimal" && (
           <div className="hidden px-10 md:block">

@@ -11,7 +11,7 @@ export function AvailabilitySection() {
   const nights = quote?.nights;
   return (
     <section id="availability" className="border-t border-line-light py-12">
-      <h2 className="text-[22px] font-semibold">
+      <h2 className="text-[22px] font-medium">
         {checkIn && checkOut && nights ? `${plural(nights, "night")} in ${listing.city}` : checkIn ? "Select checkout date" : "Select check-in date"}
       </h2>
       <p className="mb-8 text-sm text-fg-secondary">

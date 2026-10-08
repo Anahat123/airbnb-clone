@@ -111,7 +111,7 @@ export function Description({ text }: { text: string }) {
         Show more
       </Button>
       <Modal open={open} onClose={() => setOpen(false)} title="" size="lg">
-        <h2 className="mb-6 text-[26px] font-semibold">About this space</h2>
+        <h2 className="mb-6 text-[26px] font-medium">About this space</h2>
         <p className="whitespace-pre-line leading-7">{text}</p>
       </Modal>
     </div>
@@ -123,7 +123,7 @@ export function Amenities({ amenities }: { amenities: Amenity[] }) {
   const groups = amenities.reduce<Record<string, Amenity[]>>((acc, a) => ((acc[a.group] ??= []).push(a), acc), {});
   return (
     <div className="py-12">
-      <h2 className="mb-6 text-[22px] font-semibold">What this place offers</h2>
+      <h2 className="mb-6 text-[22px] font-medium">What this place offers</h2>
       <ul className="grid gap-4 sm:grid-cols-2">
         {amenities.slice(0, 10).map((a) => (
           <li key={a.id} className="flex items-center gap-4">
@@ -138,7 +138,7 @@ export function Amenities({ amenities }: { amenities: Amenity[] }) {
         </Button>
       )}
       <Modal open={open} onClose={() => setOpen(false)} size="lg">
-        <h2 className="mb-6 text-[26px] font-semibold">What this place offers</h2>
+        <h2 className="mb-6 text-[26px] font-medium">What this place offers</h2>
         {Object.entries(groups).map(([group, items]) => (
           <section key={group} className="mb-8">
             <h3 className="mb-2 text-lg font-semibold">{group}</h3>
@@ -160,7 +160,7 @@ export function MeetHost({ host }: { host: HostSummary }) {
   const years = Math.max(1, yearsSinceCount(host.created_at));
   return (
     <section className="border-t border-line-light py-12">
-      <h2 className="mb-8 text-[22px] font-semibold">Meet your host</h2>
+      <h2 className="mb-8 text-[22px] font-medium">Meet your host</h2>
       <div className="grid gap-10 md:grid-cols-[minmax(0,380px)_1fr]">
         <div className="grid grid-cols-[1fr_auto] items-center gap-6 rounded-3xl bg-bg-elevated p-8 shadow-[0_6px_20px_rgb(0_0_0/0.2)]">
           <div className="text-center">
@@ -227,7 +227,7 @@ export function ThingsToKnow({ listing }: { listing: ListingDetail }) {
   ];
   return (
     <section className="border-t border-line-light py-12">
-      <h2 className="mb-6 text-[22px] font-semibold">Things to know</h2>
+      <h2 className="mb-6 text-[22px] font-medium">Things to know</h2>
       <div className="grid gap-8 md:grid-cols-3">
         {cols.map((c) => (
           <div key={c.title}>

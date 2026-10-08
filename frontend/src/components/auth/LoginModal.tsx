@@ -57,7 +57,7 @@ export function LoginModal({ open, onClose, onSuccess }: Props) {
             run(() => api.login(email));
           }}
         >
-          <h3 className="mb-6 text-[22px] font-semibold">Welcome to Airbnb</h3>
+          <h3 className="mb-6 text-[22px] font-medium">Welcome to Airbnb</h3>
           <TextField
             label="Email"
             type="email"

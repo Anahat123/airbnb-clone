@@ -71,7 +71,7 @@ export function ReviewModal({ booking, onClose, onDone }: { booking: Booking | n
       {booking && (
         <div className="space-y-8">
           <div>
-            <h3 className="text-[22px] font-semibold">How was your stay at {booking.listing.title}?</h3>
+            <h3 className="text-[22px] font-medium">How was your stay at {booking.listing.title}?</h3>
             <p className="mt-1 text-sm text-fg-secondary">Hosted by {booking.listing.host_name}</p>
             <div className="mt-4">
               <Stars value={overall} onChange={setOverall} size={36} label="Overall rating" />

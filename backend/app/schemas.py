@@ -128,6 +128,7 @@ class Paginated(BaseModel):
 
 class HomeSection(BaseModel):
     title: str
+    subtitle: str
     city: str
     items: list[ListingCard]
 

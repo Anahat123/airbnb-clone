@@ -11,9 +11,14 @@ import type { ListingCard as Listing } from "@/lib/types";
 
 import { HeartButton } from "./HeartButton";
 
-function GuestFavouriteBadge() {
+function GuestFavouriteBadge({ small = false }: { small?: boolean }) {
   return (
-    <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[12px] font-semibold text-[#222] shadow-sm">
+    <span
+      className={clsx(
+        "absolute rounded-full bg-white/95 font-semibold text-[#222] shadow-sm",
+        small ? "left-2 top-2 px-2 py-0.5 text-[11px]" : "left-3 top-3 px-2.5 py-1 text-[12px]",
+      )}
+    >
       Guest favourite
     </span>
   );
@@ -23,7 +28,7 @@ function Price({ listing, size }: { listing: Listing; size: "sm" | "md" }) {
   if (listing.total_price && listing.nights)
     return (
       <span>
-        <span className={clsx("font-semibold text-fg", size === "md" && "underline")}>{money(listing.total_price)}</span>{" "}
+        <span className={clsx(size === "md" && "font-medium text-fg underline")}>{money(listing.total_price)}</span>{" "}
         for {plural(listing.nights, "night")}
       </span>
     );
@@ -46,11 +51,11 @@ export function CompactListingCard({ listing, href }: { listing: Listing; href: 
           loading="lazy"
           className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
         />
-        {listing.is_guest_favourite && <GuestFavouriteBadge />}
-        <HeartButton listing={listing} className="absolute right-2 top-2" />
+        {listing.is_guest_favourite && <GuestFavouriteBadge small />}
+        <HeartButton listing={listing} className="absolute right-1.5 top-1.5" />
       </div>
       <div className="mt-2 px-0.5">
-        <h3 className="truncate text-[13px] font-semibold leading-4">{listingHeadline(listing)}</h3>
+        <h3 className="truncate text-[13px] font-medium leading-4">{listingHeadline(listing)}</h3>
         <p className="mt-0.5 text-[12px] leading-4 text-fg-secondary">
           <Price listing={listing} size="sm" />
           {listing.average_rating && (
@@ -150,7 +155,7 @@ export function ListingCard({
 
       <div className="mt-3 space-y-0.5 text-[15px] leading-5">
         <div className="flex justify-between gap-2">
-          <h3 className="truncate font-semibold">{listingHeadline(listing)}</h3>
+          <h3 className="truncate font-medium">{listingHeadline(listing)}</h3>
           <span className="flex shrink-0 items-center gap-1">
             <RatingStar size={12} />
             {listing.average_rating ? (

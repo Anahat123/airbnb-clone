@@ -23,7 +23,7 @@ function Profile() {
           <p className="text-sm font-semibold">{user.is_host ? "Host" : "Guest"}</p>
         </div>
         <div className="rounded-3xl border border-line p-6">
-          <h2 className="text-[22px] font-semibold">{user.name.split(" ")[0]}&apos;s confirmed information</h2>
+          <h2 className="text-[22px] font-medium">{user.name.split(" ")[0]}&apos;s confirmed information</h2>
           <p className="mt-4 flex items-center gap-3">
             <BadgeCheck size={20} /> Email address
           </p>

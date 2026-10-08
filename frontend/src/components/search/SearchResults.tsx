@@ -132,7 +132,7 @@ export function SearchResults({ meta }: { meta: Meta }) {
       </div>
 
       <div className="flex">
-        <section className={clsx("w-full px-6 pb-16 pt-6 md:px-10 lg:w-[58%] xl:w-[55%] xl:pl-12", showMap && "hidden lg:block")}>
+        <section className={clsx("w-full px-6 pb-16 pt-6 md:px-10 lg:w-1/2 xl:pl-12", showMap && "hidden lg:block")}>
           <div className="mb-6 flex items-center justify-between">
             <h1 className="text-lg font-semibold">{loading && !data ? <span className="skeleton block h-6 w-48 rounded" /> : heading}</h1>
             {hasBounds && (
@@ -145,7 +145,7 @@ export function SearchResults({ meta }: { meta: Meta }) {
           {error ? (
             <ApiOffline />
           ) : (
-            <div className={clsx("grid gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3", loading && data && "opacity-60 transition-opacity")}>
+            <div className={clsx("grid gap-x-6 gap-y-10 sm:grid-cols-2 min-[1800px]:grid-cols-3", loading && data && "opacity-60 transition-opacity")}>
               {!data
                 ? Array.from({ length: 6 }, (_, i) => <ListingCardSkeleton key={i} />)
                 : data.items.map((l) => (
