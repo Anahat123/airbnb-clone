@@ -1,0 +1,17 @@
+flowchart LR
+  subgraph Browser
+    UI[React client components<br/>search bar, calendar, booking card, map, modals]
+  end
+  subgraph Vercel["Next.js (Vercel)"]
+    RSC[Server components<br/>home, search shell, listing page]
+  end
+  subgraph Render["FastAPI (Render)"]
+    R[Routers<br/>auth · listings · bookings · reviews · wishlists · host · users · uploads]
+    S[Services<br/>pricing · availability · ratings]
+    DB[(SQLite)]
+  end
+  CDN[Cloudinary<br/>optional]
+  UI -- fetch JSON + Bearer token --> R
+  RSC -- fetch JSON --> R
+  R --> S --> DB
+  R -- photo uploads --> CDN

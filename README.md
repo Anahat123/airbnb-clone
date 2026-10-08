@@ -78,25 +78,9 @@ Frontend: `NEXT_PUBLIC_API_URL` – the backend's URL.
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  subgraph Browser
-    UI[React client components<br/>search bar, calendar, booking card, map, modals]
-  end
-  subgraph Vercel["Next.js (Vercel)"]
-    RSC[Server components<br/>home, search shell, listing page]
-  end
-  subgraph Render["FastAPI (Render)"]
-    R[Routers<br/>auth · listings · bookings · reviews · wishlists · host · uploads]
-    S[Services<br/>pricing · availability · ratings]
-    DB[(SQLite)]
-  end
-  CDN[Cloudinary<br/>optional]
-  UI -- fetch JSON + Bearer token --> R
-  RSC -- fetch JSON --> R
-  R --> S --> DB
-  R -- photo uploads --> CDN
-```
+![Architecture: browser and Next.js call the FastAPI routers, which use services and SQLite; uploads go to Cloudinary](docs/architecture.png)
+
+<sub>Diagram source: [`docs/architecture.mmd`](docs/architecture.mmd) (Mermaid).</sub>
 
 **Backend layout** (`backend/app/`):
 
@@ -144,120 +128,9 @@ Key decisions:
 
 ## Database schema
 
-```mermaid
-erDiagram
-  users ||--o{ listings : hosts
-  users ||--o{ bookings : books
-  users ||--o{ reviews : writes
-  users ||--o{ wishlists : owns
-  categories |o--o{ listings : groups
-  listings ||--o{ listing_photos : has
-  listings }o--o{ amenities : "listing_amenities"
-  listings ||--o{ bookings : receives
-  listings ||--o{ reviews : receives
-  bookings ||--o| reviews : "reviewed by"
-  wishlists ||--o{ wishlist_items : contains
-  listings ||--o{ wishlist_items : "saved in"
+![Database schema (ER diagram) of the 10 tables](docs/schema.png)
 
-  users {
-    int id PK
-    string name
-    string email UK
-    string avatar_url
-    text bio
-    string city
-    bool is_host
-    datetime created_at
-  }
-  listings {
-    int id PK
-    int host_id FK
-    int category_id FK
-    string title
-    text description
-    string property_type
-    enum room_type
-    string address
-    string city
-    string state
-    string country
-    float latitude
-    float longitude
-    int price_per_night "whole rupees, CHECK > 0"
-    int cleaning_fee
-    int max_guests "CHECK >= 1"
-    int bedrooms
-    int beds
-    float bathrooms
-    int min_nights
-    bool is_active
-    datetime created_at
-    datetime updated_at
-  }
-  listing_photos {
-    int id PK
-    int listing_id FK
-    string url
-    string caption
-    int position "0 = cover"
-  }
-  amenities {
-    int id PK
-    string name UK
-    string icon
-    string group
-  }
-  categories {
-    int id PK
-    string slug UK
-    string name
-    string icon
-  }
-  bookings {
-    int id PK
-    int listing_id FK
-    int guest_id FK
-    date check_in
-    date check_out "exclusive, CHECK > check_in"
-    int guests
-    int infants
-    int pets
-    int nights
-    int nightly_rate "price snapshot"
-    int cleaning_fee
-    int service_fee
-    int taxes
-    int total_price
-    enum status "confirmed | cancelled"
-    datetime created_at
-  }
-  reviews {
-    int id PK
-    int listing_id FK
-    int author_id FK
-    int booking_id FK "UNIQUE: one review per stay"
-    int rating "CHECK 1..5"
-    int cleanliness
-    int accuracy
-    int check_in
-    int communication
-    int location
-    int value
-    text comment
-    datetime created_at
-  }
-  wishlists {
-    int id PK
-    int user_id FK
-    string name
-    datetime created_at
-  }
-  wishlist_items {
-    int wishlist_id PK,FK
-    int listing_id PK,FK
-    datetime created_at
-  }
-```
+<sub>Diagram source: [`docs/schema.mmd`](docs/schema.mmd) (Mermaid). Models: [`backend/app/models.py`](backend/app/models.py).</sub>
 
 Design notes:
 
