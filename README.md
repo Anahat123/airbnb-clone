@@ -2,7 +2,7 @@
 
 A full-stack clone of Airbnb's web app. Guests can search and filter stays, browse them on a map, book dates (with no double-booking possible), manage their trips, leave reviews and save wishlists. Hosts can create, edit and delete their own listings and see their reservations.
 
-- **Live demo:** https://airbnb-clone-mauve-three.vercel.app
+- **Live demo:** https://airbnb-clone-anahat.vercel.app
 - **API docs (Swagger):** https://airbnb-clone-api-t2cu.onrender.com/docs
 - **Note:** the API runs on Render's free tier and sleeps when idle — the first request after a while can take ~50 seconds.
 
