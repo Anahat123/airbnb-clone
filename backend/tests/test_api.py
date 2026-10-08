@@ -160,3 +160,18 @@ def test_guest_must_switch_to_hosting(client):
 def test_cannot_delete_listing_with_upcoming_reservations(client):
     host = login(client, "priya@demo.com")
     assert client.delete("/api/host/listings/1", headers=host).status_code == 400
+
+
+def test_host_profile_and_reviews(client):
+    profile = client.get("/api/users/1").json()  # Priya, a seeded host
+    assert profile["name"] == "Priya Mehta" and profile["identity_verified"]
+    assert profile["listings"] and all(l["host_name"] == "Priya" for l in profile["listings"])
+    reviews = client.get("/api/users/1/reviews", params={"page_size": 3}).json()
+    assert reviews["total"] == profile["review_count"] and len(reviews["items"]) == 3
+    assert client.get("/api/users/99999").status_code == 404
+
+
+def test_nearby_listings_are_closest_first(client):
+    nearby = client.get("/api/listings/1/nearby", params={"limit": 5}).json()  # a Goa villa
+    assert 1 not in [l["id"] for l in nearby]
+    assert nearby[0]["city"] == "Goa"

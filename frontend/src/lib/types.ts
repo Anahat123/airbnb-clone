@@ -21,6 +21,12 @@ export interface HostSummary extends User {
   listing_count: number;
 }
 
+export interface UserProfile extends HostSummary {
+  languages: string[];
+  identity_verified: boolean;
+  listings: ListingCard[];
+}
+
 export interface Category {
   id: number;
   slug: string;

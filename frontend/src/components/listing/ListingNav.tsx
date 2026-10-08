@@ -61,17 +61,12 @@ export function ListingNav() {
         {showReserve && (
           <div className="flex items-center gap-6">
             <div className="text-sm">
-              {quote && checkIn && checkOut ? (
-                <>
-                  <span className="text-base font-semibold underline">{money(quote.total)}</span>
-                  <span className="block">for {plural(quote.nights, "night")}</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-base font-semibold">{money(listing.total_price ?? listing.price_per_night)}</span>
-                  <span className="block">for 1 night</span>
-                </>
-              )}
+              <div className="whitespace-nowrap">
+                <span className="text-base font-semibold underline">
+                  {money(quote && checkIn && checkOut ? quote.total : (listing.total_price ?? listing.price_per_night))}
+                </span>{" "}
+                <span className="text-fg-secondary">for {plural(quote && checkIn && checkOut ? quote.nights : 1, "night")}</span>
+              </div>
               {listing.average_rating && (
                 <span className="flex items-center gap-1 text-xs">
                   <RatingStar size={10} /> {rating(listing.average_rating)} ·{" "}

@@ -8,6 +8,7 @@ import type {
   HomeSection,
   HostListingRow,
   HostStats,
+  ListingCard,
   ListingDetail,
   ListingWrite,
   Meta,
@@ -16,6 +17,7 @@ import type {
   Review,
   ReviewPage,
   User,
+  UserProfile,
   WishlistDetail,
   WishlistSummary,
 } from "./types";
@@ -86,6 +88,10 @@ export const api = {
   availability: (id: number | string) => request<Availability>(`/api/listings/${id}/availability`),
   quote: (id: number | string, check_in: string, check_out: string) =>
     request<Quote>(`/api/listings/${id}/quote${toQuery({ check_in, check_out })}`),
+  nearby: (id: number | string) => request<ListingCard[]>(`/api/listings/${id}/nearby`),
+  userProfile: (id: number | string) => request<UserProfile>(`/api/users/${id}`),
+  userReviews: (id: number | string, page = 1, page_size = 6) =>
+    request<ReviewPage>(`/api/users/${id}/reviews${toQuery({ page, page_size })}`),
   reviews: (id: number | string, page = 1, page_size = 6) =>
     request<ReviewPage>(`/api/listings/${id}/reviews${toQuery({ page, page_size })}`),
 

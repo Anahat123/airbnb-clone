@@ -289,6 +289,22 @@ def get_listing(listing_id: int, db: Session = Depends(get_db)):
     return serializers.listing_detail(db, _get_listing_or_404(db, listing_id))
 
 
+@router.get("/listings/{listing_id}/nearby", response_model=list[schemas.ListingCard])
+def nearby_listings(listing_id: int, limit: Annotated[int, Query(ge=1, le=20)] = 10, db: Session = Depends(get_db)):
+    """"More stays nearby": the closest other listings by straight-line distance."""
+    here = _get_listing_or_404(db, listing_id)
+    others = db.scalars(_card_query().where(Listing.id != here.id)).all()
+
+    def km(l: Listing) -> float:
+        # Equirectangular approximation: accurate enough for ranking nearby places.
+        x = math.radians(l.longitude - here.longitude) * math.cos(math.radians((l.latitude + here.latitude) / 2))
+        y = math.radians(l.latitude - here.latitude)
+        return 6371 * math.hypot(x, y)
+
+    closest = sorted(others, key=km)[:limit]
+    return serializers.listing_cards(db, closest)
+
+
 @router.get("/listings/{listing_id}/availability", response_model=schemas.AvailabilityOut)
 def get_availability(listing_id: int, db: Session = Depends(get_db)):
     listing = _get_listing_or_404(db, listing_id)

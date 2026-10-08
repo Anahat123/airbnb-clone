@@ -11,6 +11,7 @@ import { BookingProvider } from "@/components/listing/BookingContext";
 import { ExploreNearby } from "@/components/listing/ExploreNearby";
 import { ListingNav } from "@/components/listing/ListingNav";
 import { LocationSection } from "@/components/listing/LocationSection";
+import { NearbyStays } from "@/components/listing/NearbyStays";
 import { PhotoGallery, TitleActions } from "@/components/listing/PhotoGallery";
 import { Reviews } from "@/components/listing/Reviews";
 import {
@@ -116,6 +117,7 @@ async function ListingContent({ params }: { params: Promise<{ id: string }> }) {
       <LocationSection listing={listing} />
       <MeetHost host={listing.host} />
       <ThingsToKnow listing={listing} />
+      <NearbyStays listingId={listing.id} />
       <ExploreNearby listing={listing} destinations={destinations} />
       <MobileBookingBar />
     </BookingProvider>

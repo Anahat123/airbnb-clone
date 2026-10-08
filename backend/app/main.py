@@ -8,7 +8,7 @@ from sqlalchemy import select
 from .config import settings
 from .database import Base, SessionLocal, engine
 from .models import User
-from .routers import auth, bookings, host, listings, reviews, uploads, wishlists
+from .routers import auth, bookings, host, listings, reviews, uploads, users, wishlists
 
 
 @asynccontextmanager
@@ -35,7 +35,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for router in (auth.router, listings.router, bookings.router, reviews.router, wishlists.router, host.router, uploads.router):
+for router in (
+    auth.router, listings.router, bookings.router, reviews.router, wishlists.router, host.router, uploads.router, users.router
+):
     app.include_router(router)
 
 settings.upload_dir.mkdir(parents=True, exist_ok=True)

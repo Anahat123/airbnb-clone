@@ -35,6 +35,12 @@ class HostSummary(UserPublic):
     listing_count: int
 
 
+class UserProfile(HostSummary):
+    languages: list[str]
+    identity_verified: bool
+    listings: list["ListingCard"]
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
 
@@ -342,3 +348,6 @@ class HostStats(BaseModel):
 class UploadOut(BaseModel):
     url: str
     storage: str  # "cloudinary" or "local"
+
+
+UserProfile.model_rebuild()

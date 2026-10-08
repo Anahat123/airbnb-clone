@@ -9,16 +9,18 @@ export function PageShell({
   header = "compact",
   width = "max-w-[1280px]",
   footer = true,
+  wideHeader = false,
 }: {
   children: React.ReactNode;
   header?: "compact" | "minimal";
   width?: string;
   footer?: boolean;
+  wideHeader?: boolean;
 }) {
   return (
     <>
       <Suspense fallback={<HeaderFallback />}>
-        <Header variant={header} />
+        <Header variant={header} wide={wideHeader} />
       </Suspense>
       <main className={`mx-auto min-h-[60vh] px-6 pb-24 pt-8 md:px-10 xl:px-20 ${width}`}>
         <Suspense>{children}</Suspense>

@@ -121,7 +121,7 @@ seed.py          deterministic seed data (dates relative to today)
 ```
 app/                  routes: / (All) · /homes · /s · /rooms/[id] · /book/[id] · /trips · /trips/[id]
                       /wishlists · /wishlists/[id] · /host · /host/listings(/new, /[id]/edit)
-                      /host/reservations · /account · coming-soon pages
+                      /host/reservations · /users/[id] (host profile) · /account · coming-soon pages
 components/
   layout/             Header (expanding search), UserMenu, Footer, MobileNav
   search/             SearchBar, MobileSearch, CategoryBar, FiltersModal, PriceRange, Pagination
@@ -286,6 +286,9 @@ Interactive docs: `/docs` (Swagger) or `/redoc`. All endpoints are under `/api`.
 | GET | `/destinations?q=` | Autocomplete for the "Where" field |
 | GET | `/listings` | Search: `location, check_in, check_out, guests, category, min_price, max_price, room_type, property_types, amenities, bedrooms, beds, bathrooms, guest_favourite, sw_lat/sw_lng/ne_lat/ne_lng, sort, page, page_size` |
 | GET | `/listings/{id}` | Listing detail: photos, amenities, host, rating breakdown |
+| GET | `/listings/{id}/nearby` | Closest other listings ("More stays nearby") |
+| GET | `/users/{id}` | Public host profile: stats, languages, listings |
+| GET | `/users/{id}/reviews` | Reviews across all of a host's listings |
 | GET | `/listings/{id}/availability` | Booked date ranges for the calendar |
 | GET | `/listings/{id}/quote?check_in&check_out` | Price breakdown + whether the dates are free |
 | GET | `/listings/{id}/reviews?page` | Paginated reviews |

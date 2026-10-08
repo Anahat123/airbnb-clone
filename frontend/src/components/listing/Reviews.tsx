@@ -29,7 +29,7 @@ function reviewDate(iso: string) {
   return format(d, "MMMM yyyy");
 }
 
-function ReviewItem({ review, clamp = true }: { review: Review; clamp?: boolean }) {
+export function ReviewItem({ review, clamp = true }: { review: Review; clamp?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const since = new Date().getFullYear() - new Date(review.author.created_at).getFullYear();
   const long = clamp && review.comment.length > 180;

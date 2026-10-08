@@ -1,6 +1,7 @@
 "use client";
 
-import { DoorOpen, Medal, MessageSquare, ShieldCheck, Sparkles, WavesLadder } from "lucide-react";
+import { DoorOpen, Headset, Medal, MessageSquare, ShieldCheck, Sparkles, WavesLadder } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 import { useToast } from "@/components/providers/ToastProvider";
@@ -195,32 +196,49 @@ export function Amenities({ amenities }: { amenities: Amenity[] }) {
   );
 }
 
+/** Host card (photo, name, Superhost, stats). Used on the listing page and the host's profile. */
+export function HostCard({ host, href }: { host: HostSummary; href?: string }) {
+  const years = Math.max(1, yearsSinceCount(host.created_at));
+  const card = (
+    <div className="grid grid-cols-[1fr_auto] items-center gap-6 rounded-3xl bg-bg-elevated p-8 shadow-[0_6px_20px_rgb(0_0_0/0.2)] transition hover:shadow-[0_8px_28px_rgb(0_0_0/0.25)]">
+      <div className="text-center">
+        <div className="relative mx-auto w-fit">
+          <Avatar user={host} size={104} />
+          {host.is_superhost && (
+            <span className="absolute bottom-1 right-0 grid h-8 w-8 place-items-center rounded-full bg-rausch text-white">
+              <ShieldCheck size={16} />
+            </span>
+          )}
+        </div>
+        <div className="mt-3 text-[28px] font-bold leading-8">{host.name.split(" ")[0]}</div>
+        <div className="flex items-center justify-center gap-1 text-sm font-semibold">
+          {host.is_superhost && <Medal size={13} />}
+          {host.is_superhost ? "Superhost" : "Host"}
+        </div>
+      </div>
+      <div className="w-24 divide-y divide-line-light">
+        <Stat value={host.review_count} label="Reviews" />
+        <Stat value={host.average_rating ? `${rating(host.average_rating)}★` : "New"} label="Rating" />
+        <Stat value={years} label={`Year${years > 1 ? "s" : ""} hosting`} />
+      </div>
+    </div>
+  );
+  return href ? (
+    <Link href={href} aria-label={`View ${host.name.split(" ")[0]}'s profile`} className="block">
+      {card}
+    </Link>
+  ) : (
+    card
+  );
+}
+
 export function MeetHost({ host }: { host: HostSummary }) {
   const toast = useToast();
-  const years = Math.max(1, yearsSinceCount(host.created_at));
   return (
     <section id="host" className="border-t border-line-light py-12">
       <h2 className="mb-8 text-[22px] font-medium">Meet your host</h2>
       <div className="grid gap-10 md:grid-cols-[minmax(0,380px)_1fr]">
-        <div className="grid grid-cols-[1fr_auto] items-center gap-6 rounded-3xl bg-bg-elevated p-8 shadow-[0_6px_20px_rgb(0_0_0/0.2)]">
-          <div className="text-center">
-            <div className="relative mx-auto w-fit">
-              <Avatar user={host} size={104} />
-              {host.is_superhost && (
-                <span className="absolute bottom-1 right-0 grid h-8 w-8 place-items-center rounded-full bg-rausch text-white">
-                  <ShieldCheck size={16} />
-                </span>
-              )}
-            </div>
-            <div className="mt-3 text-[28px] font-bold leading-8">{host.name.split(" ")[0]}</div>
-            <div className="text-sm font-semibold">{host.is_superhost ? "Superhost" : "Host"}</div>
-          </div>
-          <div className="w-24 divide-y divide-line-light">
-            <Stat value={host.review_count} label="Reviews" />
-            <Stat value={host.average_rating ? `${rating(host.average_rating)}★` : "New"} label="Rating" />
-            <Stat value={years} label={`Year${years > 1 ? "s" : ""} hosting`} />
-          </div>
-        </div>
+        <HostCard host={host} href={`/users/${host.id}`} />
         <div>
           {host.is_superhost && (
             <>
@@ -273,12 +291,23 @@ export function ThingsToKnow({ listing }: { listing: ListingDetail }) {
           <div key={c.title}>
             <h3 className="mb-3 font-semibold">{c.title}</h3>
             {c.lines.map((l) => (
-              <p key={l} className="mb-2 text-fg-secondary">
+              <p key={l} className="text-fg-secondary">
                 {l}
               </p>
             ))}
+            <Link href="/help" className="mt-2 inline-block underline">
+              Learn more
+            </Link>
           </div>
         ))}
+      </div>
+      <div className="mt-10">
+        <Headset size={28} strokeWidth={1.5} />
+        <h3 className="mt-4 font-semibold">24/7 localised support</h3>
+        <p className="text-fg-secondary">Backed by our India-based team</p>
+        <Link href="/help" className="mt-1 inline-block underline">
+          Learn more
+        </Link>
       </div>
     </section>
   );
