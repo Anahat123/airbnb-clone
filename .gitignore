@@ -20,3 +20,7 @@ next-env.d.ts
 
 # Secret Render deploy hook (local only)
 .render-deploy-hook
+
+# Local tooling
+.claude/
+frontend/AGENTS.md
