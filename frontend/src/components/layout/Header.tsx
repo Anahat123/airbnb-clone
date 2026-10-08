@@ -60,6 +60,8 @@ export function Header({
   }
 
   const big = variant === "expanded" ? !scrolled || expanded : expanded;
+  // The search page continues the header's grey band into its filter bar.
+  const banded = variant === "compact" && pathname === "/s" && !expanded;
   const hosting = pathname.startsWith("/host");
 
   const checkIn = parseDay(search.checkIn);
@@ -74,7 +76,8 @@ export function Header({
       )}
       <header
         className={clsx(
-          "z-[1000] w-full border-b border-line-light bg-bg transition-[height]",
+          "z-[1000] w-full transition-[height]",
+          banded ? "band-top" : "border-b border-line-light bg-bg",
           sticky ? "sticky top-0" : "relative",
           big && variant !== "minimal" ? "md:bg-gradient-to-b md:from-bg md:to-bg-secondary md:pb-8" : "",
         )}
@@ -133,7 +136,7 @@ export function Header({
                 >
                   <span className="flex items-center gap-2 px-3 font-medium">
                     <span className="text-xl leading-none">🏡</span>
-                    {search.location ? `Homes in ${where}` : "Anywhere"}
+                    {search.location ? `Homes in ${where}` : "Homes nearby"}
                   </span>
                   <span className="h-6 w-px bg-line" />
                   <span className={clsx("px-4 font-medium", !checkIn && "text-fg")}>{when}</span>

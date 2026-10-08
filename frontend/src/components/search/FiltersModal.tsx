@@ -21,6 +21,7 @@ export interface Filters {
   amenities: number[];
   property_types: string[];
   guest_favourite: boolean;
+  category: string | null;
 }
 
 export const NO_FILTERS: Filters = {
@@ -33,6 +34,7 @@ export const NO_FILTERS: Filters = {
   amenities: [],
   property_types: [],
   guest_favourite: false,
+  category: null,
 };
 
 export function countFilters(f: Filters): number {
@@ -44,7 +46,8 @@ export function countFilters(f: Filters): number {
     (f.bathrooms ? 1 : 0) +
     f.amenities.length +
     f.property_types.length +
-    (f.guest_favourite ? 1 : 0)
+    (f.guest_favourite ? 1 : 0) +
+    (f.category ? 1 : 0)
   );
 }
 
@@ -59,10 +62,17 @@ export function filtersToQuery(f: Filters) {
     amenities: f.amenities.join(",") || null,
     property_types: f.property_types.join(",") || null,
     guest_favourite: f.guest_favourite || null,
+    category: f.category,
   };
 }
 
-const RECOMMENDED = ["Wifi", "Pool", "Air conditioning", "Free parking on premises", "Kitchen", "Self check-in"];
+// "Recommended for you" tiles: amenity name, short label and an illustration.
+const RECOMMENDED: [string, string, string][] = [
+  ["Kitchen", "Kitchen", "🍳"],
+  ["Free parking on premises", "Free parking", "🅿️"],
+  ["Pool", "Pool", "🏊"],
+  ["Self check-in", "Self check-in", "🔑"],
+];
 
 export function FiltersModal({
   open,
@@ -77,7 +87,7 @@ export function FiltersModal({
   meta: Meta;
   value: Filters;
   onApply: (f: Filters) => void;
-  /** Location, dates, guests and category: used for the live "Show N places" count. */
+  /** Location, dates, guests and map area: used for the live "Show N places" count. */
   baseQuery: Record<string, string | number | boolean | null>;
 }) {
   const [draft, setDraft] = useState(value);
@@ -116,10 +126,15 @@ export function FiltersModal({
       open={open}
       onClose={onClose}
       title="Filters"
-      size="lg"
+      size="md"
+      closeRight
       footer={
         <div className="flex items-center justify-between">
-          <button className="rounded-lg px-2 py-2 font-semibold underline hover:bg-bg-hover" onClick={() => setDraft(NO_FILTERS)}>
+          <button
+            className="rounded-lg px-2 py-2 font-semibold underline hover:bg-bg-hover disabled:text-fg-tertiary disabled:no-underline disabled:hover:bg-transparent"
+            disabled={countFilters(draft) === 0}
+            onClick={() => setDraft(NO_FILTERS)}
+          >
             Clear all
           </button>
           <Button size="lg" onClick={() => onApply(draft)}>
@@ -130,29 +145,32 @@ export function FiltersModal({
     >
       <section className="pb-8">
         <h3 className="mb-4 text-[22px] font-medium">Recommended for you</h3>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {RECOMMENDED.map((name) => meta.amenities.find((a) => a.name === name))
-            .filter((a) => a !== undefined)
-            .map((a) => {
-              const on = draft.amenities.includes(a.id);
-              return (
-                <button
-                  key={a.id}
-                  onClick={() => set({ amenities: toggle(draft.amenities, a.id) })}
-                  className={clsx("flex flex-col gap-6 rounded-xl border p-4 text-left text-sm font-semibold", on ? "border-fg bg-bg-secondary ring-1 ring-fg" : "border-line hover:border-fg")}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {RECOMMENDED.map(([name, label, emoji]) => {
+            const a = meta.amenities.find((x) => x.name === name);
+            if (!a) return null;
+            const on = draft.amenities.includes(a.id);
+            return (
+              <button key={a.id} onClick={() => set({ amenities: toggle(draft.amenities, a.id) })} className="group text-center">
+                <span
+                  className={clsx(
+                    "grid aspect-[21/20] place-items-center rounded-2xl border text-[52px] transition",
+                    on ? "border-fg ring-1 ring-fg" : "border-line group-hover:border-fg",
+                  )}
                 >
-                  <Icon name={a.icon} size={28} />
-                  {a.name}
-                </button>
-              );
-            })}
+                  {emoji}
+                </span>
+                <span className="mt-3 block">{label}</span>
+              </button>
+            );
+          })}
         </div>
       </section>
       <Divider />
 
       <section className="py-8">
         <h3 className="mb-4 text-[22px] font-medium">Type of place</h3>
-        <div className="grid grid-cols-3 rounded-2xl bg-bg-secondary p-1 text-sm font-semibold">
+        <div className="grid grid-cols-3 rounded-2xl border border-line p-1">
           {([
             [null, "Any type"],
             ["private_room", "Room"],
@@ -161,9 +179,22 @@ export function FiltersModal({
             <button
               key={label}
               onClick={() => set({ room_type: v })}
-              className={clsx("rounded-xl py-4", draft.room_type === v ? "bg-bg-elevated shadow ring-1 ring-fg" : "text-fg-secondary hover:text-fg")}
+              className={clsx("rounded-xl py-4", draft.room_type === v ? "font-medium ring-2 ring-fg" : "hover:bg-bg-hover")}
             >
               {label}
+            </button>
+          ))}
+        </div>
+      </section>
+      <Divider />
+
+      <section className="py-8">
+        <h3 className="mb-4 text-[22px] font-medium">Category</h3>
+        <div className="flex flex-wrap gap-3">
+          {meta.categories.map((c) => (
+            <button key={c.slug} className={chip(draft.category === c.slug)} onClick={() => set({ category: draft.category === c.slug ? null : c.slug })}>
+              <Icon name={c.icon} size={18} />
+              {c.name}
             </button>
           ))}
         </div>

@@ -14,6 +14,8 @@ interface ModalProps {
   size?: "sm" | "md" | "lg" | "xl" | "full";
   /** Show a back chevron instead of an X (used for nested steps). */
   back?: boolean;
+  /** Put the close button on the right, as in Airbnb's Filters modal. */
+  closeRight?: boolean;
   bodyClassName?: string;
 }
 
@@ -26,7 +28,7 @@ const widths = {
 };
 
 /** Airbnb modal: slides up as a sheet on mobile, centred card on desktop. Esc and backdrop close it. */
-export function Modal({ open, onClose, title, children, footer, size = "md", back, bodyClassName }: ModalProps) {
+export function Modal({ open, onClose, title, children, footer, size = "md", back, closeRight, bodyClassName }: ModalProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -55,7 +57,7 @@ export function Modal({ open, onClose, title, children, footer, size = "md", bac
             type="button"
             onClick={onClose}
             aria-label={back ? "Back" : "Close"}
-            className="absolute left-6 grid h-8 w-8 place-items-center rounded-full hover:bg-bg-hover"
+            className={clsx("absolute grid h-8 w-8 place-items-center rounded-full hover:bg-bg-hover", closeRight ? "right-6" : "left-6")}
           >
             {back ? <ChevronLeft size={18} /> : <X size={18} />}
           </button>

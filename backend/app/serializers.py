@@ -53,6 +53,7 @@ def listing_cards(
                 is_superhost=ratings.is_superhost(host_stats.get(listing.host_id)),
                 bedrooms=listing.bedrooms,
                 beds=listing.beds,
+                bathrooms=listing.bathrooms,
                 max_guests=listing.max_guests,
             )
         )
@@ -78,7 +79,6 @@ def listing_detail(db: Session, listing: Listing) -> schemas.ListingDetail:
         photos=[p.url for p in listing.photos],
         description=listing.description,
         address=listing.address,
-        bathrooms=listing.bathrooms,
         cleaning_fee=listing.cleaning_fee,
         min_nights=listing.min_nights,
         category=listing.category,

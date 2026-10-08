@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { List, Map as MapIcon } from "lucide-react";
+import { List, Map as MapIcon, Tag } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -12,11 +12,11 @@ import { api } from "@/lib/api";
 import { readSearch } from "@/lib/search";
 import type { Meta, Paginated, RoomType } from "@/lib/types";
 
-import { CategoryBar } from "./CategoryBar";
+import { FilterBar } from "./FilterBar";
 import { countFilters, type Filters, FiltersModal, filtersToQuery } from "./FiltersModal";
 import { Pagination } from "./Pagination";
 
-const FILTER_KEYS = ["room_type", "min_price", "max_price", "bedrooms", "beds", "bathrooms", "amenities", "property_types", "guest_favourite"];
+const FILTER_KEYS = ["room_type", "min_price", "max_price", "bedrooms", "beds", "bathrooms", "amenities", "property_types", "guest_favourite", "category"];
 const BOUND_KEYS = ["sw_lat", "sw_lng", "ne_lat", "ne_lng"];
 
 function readFilters(p: URLSearchParams): Filters {
@@ -31,11 +31,12 @@ function readFilters(p: URLSearchParams): Filters {
     amenities: (p.get("amenities") ?? "").split(",").filter(Boolean).map(Number),
     property_types: (p.get("property_types") ?? "").split(",").filter(Boolean),
     guest_favourite: p.get("guest_favourite") === "true",
+    category: p.get("category"),
   };
 }
 
 /**
- * The /s page: category row + filters, results grid with pagination, and a map.
+ * The /s page: filter bar, results grid with pagination, and a map.
  * All state is read from and written to the URL; fetching re-runs when it changes.
  */
 export function SearchResults({ meta }: { meta: Meta }) {
@@ -45,7 +46,6 @@ export function SearchResults({ meta }: { meta: Meta }) {
 
   const search = useMemo(() => readSearch(params), [params]);
   const filters = useMemo(() => readFilters(new URLSearchParams(params.toString())), [params]);
-  const category = params.get("category");
   const page = Math.max(1, Number(params.get("page") ?? 1));
   const hasBounds = BOUND_KEYS.every((k) => params.get(k));
 
@@ -54,7 +54,7 @@ export function SearchResults({ meta }: { meta: Meta }) {
   const [hovered, setHovered] = useState<number | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [showMap, setShowMap] = useState(false); // mobile toggle
-  const [searchOnMove, setSearchOnMove] = useState(true);
+  const [mapExpanded, setMapExpanded] = useState(false); // desktop full-width map
 
   // Base query for the backend (everything except filters & paging), shared with the filter modal's count.
   const baseQuery = useMemo(
@@ -63,10 +63,9 @@ export function SearchResults({ meta }: { meta: Meta }) {
       check_in: search.checkIn && search.checkOut ? search.checkIn : null,
       check_out: search.checkIn && search.checkOut ? search.checkOut : null,
       guests: Math.max(1, search.adults + search.children),
-      category,
       ...Object.fromEntries(BOUND_KEYS.map((k) => [k, params.get(k)])),
     }),
-    [search, category, params],
+    [search, params],
   );
 
   const query = useMemo(() => ({ ...baseQuery, ...filtersToQuery(filters), page }), [baseQuery, filters, page]);
@@ -106,12 +105,13 @@ export function SearchResults({ meta }: { meta: Meta }) {
     update({ ...Object.fromEntries(FILTER_KEYS.map((k) => [k, null])), ...filtersToQuery(f) });
   };
 
-  const onMapMove = useCallback(
-    (b: Bounds) => {
-      if (searchOnMove) update({ ...b, location: null });
-    },
-    [searchOnMove, update],
-  );
+  // Panning or zooming the map searches the visible area, as on Airbnb.
+  const onMapMove = useCallback((b: Bounds) => update({ ...b, location: null }), [update]);
+
+  const toggleAmenity = (id: number) => {
+    const next = filters.amenities.includes(id) ? filters.amenities.filter((a) => a !== id) : [...filters.amenities, id];
+    update({ amenities: next.join(",") || null });
+  };
 
   const dates = search.checkIn && search.checkOut ? { checkIn: search.checkIn, checkOut: search.checkOut } : null;
   const place = search.location.split(",")[0];
@@ -121,25 +121,30 @@ export function SearchResults({ meta }: { meta: Meta }) {
 
   return (
     <>
-      <div className="sticky top-20 z-[800] border-b border-line-light bg-bg px-6 pt-4 md:px-10 xl:px-12">
-        <CategoryBar
-          categories={meta.categories}
-          active={category}
-          onSelect={(slug) => update({ category: slug })}
+      <div className="band-bottom sticky top-20 z-[800] border-b border-line-light px-6 py-3 md:top-24 md:px-10 xl:px-12">
+        <FilterBar
+          amenities={meta.amenities}
+          selected={filters.amenities}
+          onToggle={toggleAmenity}
           filterCount={countFilters(filters)}
           onOpenFilters={() => setFiltersOpen(true)}
         />
       </div>
 
       <div className="flex">
-        <section className={clsx("w-full px-6 pb-16 pt-6 md:px-10 lg:w-1/2 xl:pl-12", showMap && "hidden lg:block")}>
+        <section className={clsx("w-full px-6 pb-16 pt-6 md:px-10 lg:w-1/2 xl:pl-12", showMap && "hidden lg:block", mapExpanded && "lg:hidden")}>
           <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-lg font-semibold">{loading && !data ? <span className="skeleton block h-6 w-48 rounded" /> : heading}</h1>
-            {hasBounds && (
-              <button className="text-sm font-semibold underline" onClick={() => update(Object.fromEntries(BOUND_KEYS.map((k) => [k, null])))}>
-                Clear map area
-              </button>
-            )}
+            <div>
+              <h1 className="text-xl font-semibold">{loading && !data ? <span className="skeleton block h-6 w-48 rounded" /> : heading}</h1>
+              {hasBounds && (
+                <button className="text-sm underline" onClick={() => update(Object.fromEntries(BOUND_KEYS.map((k) => [k, null])))}>
+                  Clear map area
+                </button>
+              )}
+            </div>
+            <span className="hidden items-center gap-2 text-sm font-medium sm:flex">
+              <Tag size={18} className="fill-rausch text-rausch" /> Prices include all fees
+            </span>
           </div>
 
           {error ? (
@@ -188,13 +193,22 @@ export function SearchResults({ meta }: { meta: Meta }) {
           )}
         </section>
 
-        <aside className={clsx("sticky top-[176px] h-[calc(100dvh-176px)] flex-1 p-0 lg:block lg:pb-6 lg:pr-10 lg:pt-6 xl:pr-12", showMap ? "block" : "hidden")}>
+        <aside
+          className={clsx(
+            "sticky top-[139px] h-[calc(100dvh-139px)] flex-1 p-0 md:top-[155px] md:h-[calc(100dvh-155px)] lg:block lg:pb-6 lg:pr-10 lg:pt-6 xl:pr-12",
+            showMap ? "block" : "hidden",
+            mapExpanded && "lg:pl-10 xl:pl-12",
+          )}
+        >
           <div className="relative h-full overflow-hidden lg:rounded-2xl">
-            <ListingsMap listings={data?.items ?? []} activeId={hovered} onMove={onMapMove} fitToListings={!hasBounds} />
-            <label className="absolute left-1/2 top-4 z-[500] flex -translate-x-1/2 cursor-pointer items-center gap-2 rounded-lg bg-bg-elevated px-4 py-2 text-sm font-semibold shadow-pop">
-              <input type="checkbox" checked={searchOnMove} onChange={(e) => setSearchOnMove(e.target.checked)} className="h-4 w-4 accent-fg" />
-              Search as I move the map
-            </label>
+            <ListingsMap
+              listings={data?.items ?? []}
+              activeId={hovered}
+              onMove={onMapMove}
+              fitToListings={!hasBounds}
+              expanded={mapExpanded}
+              onToggleExpand={() => setMapExpanded((e) => !e)}
+            />
           </div>
         </aside>
       </div>

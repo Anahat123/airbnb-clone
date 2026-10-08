@@ -11,7 +11,10 @@ import type { ListingCard as Listing } from "@/lib/types";
 
 import { HeartButton } from "./HeartButton";
 
-function GuestFavouriteBadge({ small = false }: { small?: boolean }) {
+/** The very best-rated homes get a trophy, like Airbnb's top-percentile Guest favourites. */
+const isTopRated = (l: Listing) => (l.average_rating ?? 0) >= 4.95 && l.review_count >= 10;
+
+function GuestFavouriteBadge({ small = false, trophy = false }: { small?: boolean; trophy?: boolean }) {
   return (
     <span
       className={clsx(
@@ -19,7 +22,7 @@ function GuestFavouriteBadge({ small = false }: { small?: boolean }) {
         small ? "left-2 top-2 px-2 py-0.5 text-[11px]" : "left-3 top-3 px-2.5 py-1 text-[12px]",
       )}
     >
-      Guest favourite
+      {trophy && "🏆 "}Guest favourite
     </span>
   );
 }
@@ -122,7 +125,7 @@ export function ListingCard({
             />
           ))}
         </div>
-        {listing.is_guest_favourite && <GuestFavouriteBadge />}
+        {listing.is_guest_favourite && <GuestFavouriteBadge trophy={isTopRated(listing)} />}
         <HeartButton listing={listing} className="absolute right-3 top-3" />
         {photos.length > 1 && (
           <>
@@ -170,12 +173,15 @@ export function ListingCard({
         <p className="truncate text-fg-secondary">{listing.title}</p>
         <p className="truncate text-fg-secondary">
           {listing.bedrooms > 0 && `${plural(listing.bedrooms, "bedroom")} · `}
-          {plural(listing.beds, "bed")}
+          {plural(listing.beds, "bed")} · {plural(listing.bathrooms, "bathroom")}
         </p>
         {dates && <p className="text-fg-secondary">{shortRange(dates.checkIn, dates.checkOut)}</p>}
         <p className="pt-1 text-fg-secondary">
           <Price listing={listing} size="md" />
         </p>
+        {dates && (
+          <span className="mt-1 inline-block rounded bg-bg-secondary px-1.5 py-0.5 text-xs text-fg-secondary">Free cancellation</span>
+        )}
       </div>
     </Link>
   );

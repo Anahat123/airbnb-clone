@@ -167,3 +167,9 @@ button:disabled {
 .leaflet-popup-tip {
   background: var(--bg-elevated);
 }
+
+/* Soft grey band behind the header and filter bar (search page), like airbnb.co.in. */
+:root { --band: #f9f9f9; --band-2: #f5f5f5; }
+.dark { --band: #181818; --band-2: #1c1c1c; }
+.band-top { background: linear-gradient(var(--bg), var(--band)); }
+.band-bottom { background: linear-gradient(var(--band), var(--band-2)); }

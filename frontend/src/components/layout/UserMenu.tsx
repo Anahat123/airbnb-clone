@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, Menu, Moon, Sun, SunMoon } from "lucide-react";
+import { CircleUserRound, Menu, Moon, Sun, SunMoon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -48,21 +48,20 @@ export function UserMenu({ hosting = false }: { hosting?: boolean }) {
         {hosting ? "Switch to travelling" : user?.is_host ? "Switch to hosting" : "Become a host"}
       </button>
       <button
-        aria-label="Choose a language and currency"
-        onClick={() => toast({ message: "Language & currency: English (IN), ₹ INR. More coming soon." })}
-        className="hidden h-10 w-10 place-items-center rounded-full bg-bg-secondary hover:bg-line-light md:grid"
+        aria-label={user ? "Profile" : "Log in"}
+        onClick={() => (user ? router.push("/account") : openLogin())}
+        className="ml-1 grid h-12 w-12 place-items-center rounded-full bg-[#f2f2f2] text-[#222] hover:bg-[#ebebeb] dark:bg-bg-secondary dark:text-fg"
       >
-        <Globe size={16} />
+        {user ? <Avatar user={user} size={36} /> : <CircleUserRound size={24} strokeWidth={1.6} />}
       </button>
       <div className="relative">
         <button
           aria-label="Main navigation menu"
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
-          className="flex h-10 items-center gap-2 rounded-full bg-bg-secondary pl-1 pr-3 hover:bg-line-light"
+          className="grid h-12 w-12 place-items-center rounded-full bg-[#f2f2f2] text-[#222] hover:bg-[#ebebeb] dark:bg-bg-secondary dark:text-fg"
         >
-          {user ? <Avatar user={user} size={32} /> : <span className="w-1" />}
-          <Menu size={16} />
+          <Menu size={18} />
         </button>
         {open && (
           <div className="animate-fade-in absolute right-0 top-12 z-[1100] w-64 overflow-hidden rounded-2xl bg-bg-elevated py-2 shadow-pop">

@@ -71,6 +71,7 @@ export interface ListingCard {
   is_superhost: boolean;
   bedrooms: number;
   beds: number;
+  bathrooms: number;
   max_guests: number;
 }
 
@@ -101,7 +102,6 @@ export type RatingKey = "cleanliness" | "accuracy" | "check_in" | "communication
 export interface ListingDetail extends ListingCard {
   description: string;
   address: string;
-  bathrooms: number;
   cleaning_fee: number;
   min_nights: number;
   category: Category | null;

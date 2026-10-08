@@ -115,6 +115,7 @@ class ListingCard(BaseModel):
     is_superhost: bool
     bedrooms: int
     beds: int
+    bathrooms: float
     max_guests: int
 
 
@@ -145,7 +146,6 @@ class RatingBreakdown(BaseModel):
 class ListingDetail(ListingCard):
     description: str
     address: str
-    bathrooms: float
     cleaning_fee: int
     min_nights: int
     category: CategoryOut | None
