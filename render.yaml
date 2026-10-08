@@ -18,7 +18,7 @@ services:
       - key: CORS_ORIGINS
         sync: false # set to your Vercel URL, e.g. https://airbnb-clone.vercel.app
       - key: CORS_ORIGIN_REGEX
-        value: https://.*\.vercel\.app
+        value: https://airbnb-clone-[a-z0-9-]+-anna-569f\.vercel\.app # this project's Vercel preview URLs
       - key: PUBLIC_BASE_URL
         sync: false # this service's URL, e.g. https://airbnb-clone-api.onrender.com
       - key: CLOUDINARY_CLOUD_NAME

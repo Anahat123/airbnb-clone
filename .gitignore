@@ -17,3 +17,6 @@ frontend/.env*.local
 next-env.d.ts
 
 .DS_Store
+
+# Secret Render deploy hook (local only)
+.render-deploy-hook
