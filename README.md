@@ -119,7 +119,7 @@ seed.py          deterministic seed data (dates relative to today)
 **Frontend layout** (`frontend/src/`):
 
 ```
-app/                  routes: / · /s · /rooms/[id] · /book/[id] · /trips · /trips/[id]
+app/                  routes: / (All) · /homes · /s · /rooms/[id] · /book/[id] · /trips · /trips/[id]
                       /wishlists · /wishlists/[id] · /host · /host/listings(/new, /[id]/edit)
                       /host/reservations · /account · coming-soon pages
 components/
@@ -282,7 +282,7 @@ Interactive docs: `/docs` (Swagger) or `/redoc`. All endpoints are under `/api`.
 | POST | `/auth/become-host` 🔒 | Switch the account to hosting |
 | GET | `/auth/demo-users` | Accounts offered in the login modal |
 | GET | `/meta` | Categories, amenities, property types, price histogram |
-| GET | `/home` | Home page rows (popular listings per city) |
+| GET | `/home?group=city\|category` | Explore rows: per city (All tab) or per category (Homes tab) |
 | GET | `/destinations?q=` | Autocomplete for the "Where" field |
 | GET | `/listings` | Search: `location, check_in, check_out, guests, category, min_price, max_price, room_type, property_types, amenities, bedrooms, beds, bathrooms, guest_favourite, sw_lat/sw_lng/ne_lat/ne_lng, sort, page, page_size` |
 | GET | `/listings/{id}` | Listing detail: photos, amenities, host, rating breakdown |
@@ -310,7 +310,7 @@ Interactive docs: `/docs` (Swagger) or `/redoc`. All endpoints are under `/api`.
 
 ## Features
 
-**Core:** home rows · search bar (where / when / who, with autocomplete and a two-month range calendar) · filter row (Filters button + quick amenity chips, like airbnb.co.in) · filters modal (recommended amenities, type of place, category, price histogram slider, rooms and beds, amenities, Guest favourite, property type, live "Show N places" count) · numbered pagination · listing page (photo grid, photo tour and viewer, highlights, description, amenities, inline availability calendar, sticky booking card with price breakdown, reviews with category ratings, map, host card, things to know) · checkout with mock payment · trip confirmation · Trips page · cancellation · wishlists (named lists, heart toggle, wishlist pages with map) · toasts · modals · host dashboard, reservations and listings · 10-step listing wizard (create and edit) with photo upload or URL.
+**Core:** All / Homes tabs (rows by city, rows by category, each ending in a "See all" tile) · search bar (where / when / who, with autocomplete and a two-month range calendar) · filter row (Filters button + quick amenity chips, like airbnb.co.in) · filters modal (recommended amenities, type of place, category, price histogram slider, rooms and beds, amenities, Guest favourite, property type, live "Show N places" count) · numbered pagination · listing page (photo grid, photo tour and viewer, highlights, description, amenities, inline availability calendar, sticky booking card with price breakdown, reviews with category ratings, map, host card, things to know) · checkout with mock payment · trip confirmation · Trips page · cancellation · wishlists (named lists, heart toggle, wishlist pages with map) · toasts · modals · host dashboard, reservations and listings · 10-step listing wizard (create and edit) with photo upload or URL.
 
 **Bonus:** interactive map with price pins, popups, zoom/expand controls and search-as-you-move · post-stay reviews · Superhost badges and Guest favourite labels from aggregated ratings · Cloudinary image upload · dark mode (light / dark / system, no flash on load) · responsive design (mobile search sheet, bottom tab bar, swipeable photos, map/list toggle).
 

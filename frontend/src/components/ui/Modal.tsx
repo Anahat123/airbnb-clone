@@ -16,6 +16,8 @@ interface ModalProps {
   back?: boolean;
   /** Put the close button on the right, as in Airbnb's Filters modal. */
   closeRight?: boolean;
+  /** No title bar: just a floating close button (Airbnb's login card). */
+  bare?: boolean;
   bodyClassName?: string;
 }
 
@@ -28,7 +30,7 @@ const widths = {
 };
 
 /** Airbnb modal: slides up as a sheet on mobile, centred card on desktop. Esc and backdrop close it. */
-export function Modal({ open, onClose, title, children, footer, size = "md", back, closeRight, bodyClassName }: ModalProps) {
+export function Modal({ open, onClose, title, children, footer, size = "md", back, closeRight, bare, bodyClassName }: ModalProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -48,11 +50,17 @@ export function Modal({ open, onClose, title, children, footer, size = "md", bac
       <div className="animate-fade-in absolute inset-0 bg-[var(--overlay)]" onClick={onClose} />
       <div
         className={clsx(
-          "animate-fade-up relative flex max-h-[94dvh] w-full flex-col overflow-hidden rounded-t-3xl bg-bg-elevated shadow-pop md:max-h-[90vh] md:rounded-3xl",
+          "animate-fade-up relative flex max-h-[94dvh] w-full flex-col overflow-hidden rounded-t-3xl bg-bg-elevated shadow-pop md:max-h-[90vh]",
+          bare ? "md:rounded-[32px]" : "md:rounded-3xl",
           widths[size],
         )}
       >
-        <header className="relative flex min-h-16 shrink-0 items-center justify-center border-b border-line-light px-16 py-4">
+        <header
+          className={clsx(
+            "flex shrink-0 items-center justify-center",
+            bare ? "absolute inset-x-0 top-0 z-10 h-16" : "relative min-h-16 border-b border-line-light px-16 py-4",
+          )}
+        >
           <button
             type="button"
             onClick={onClose}
@@ -61,7 +69,7 @@ export function Modal({ open, onClose, title, children, footer, size = "md", bac
           >
             {back ? <ChevronLeft size={18} /> : <X size={18} />}
           </button>
-          {title && <h2 className="text-base font-semibold">{title}</h2>}
+          {title && !bare && <h2 className="text-base font-semibold">{title}</h2>}
         </header>
         <div className={clsx("flex-1 overflow-y-auto p-6", bodyClassName)}>{children}</div>
         {footer && <footer className="shrink-0 border-t border-line-light px-6 py-4">{footer}</footer>}

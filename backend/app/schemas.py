@@ -131,6 +131,7 @@ class HomeSection(BaseModel):
     title: str
     subtitle: str
     city: str
+    search_query: str  # where "See all" goes, e.g. "location=Goa" or "category=cabins"
     items: list[ListingCard]
 
 

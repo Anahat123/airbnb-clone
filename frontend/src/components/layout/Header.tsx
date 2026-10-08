@@ -16,7 +16,8 @@ import { Logo } from "./Logo";
 import { UserMenu } from "./UserMenu";
 
 const TABS = [
-  { href: "/", label: "Homes", emoji: "🏡", match: (p: string) => p === "/" || p.startsWith("/s") },
+  { href: "/", label: "All", emoji: "🌍", match: (p: string) => p === "/" },
+  { href: "/homes", label: "Homes", emoji: "🏡", match: (p: string) => p.startsWith("/homes") || p.startsWith("/s") },
   { href: "/experiences", label: "Experiences", emoji: "🎈", match: (p: string) => p.startsWith("/experiences") },
   { href: "/services", label: "Services", emoji: "🛎️", match: (p: string) => p.startsWith("/services") },
 ];

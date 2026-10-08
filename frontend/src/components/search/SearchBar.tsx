@@ -99,7 +99,7 @@ export function SearchBar({
     <form ref={root} onSubmit={submit} className="relative mx-auto w-full max-w-[850px]">
       <div
         className={clsx(
-          "grid h-[66px] grid-cols-[1.3fr_1fr_1.2fr] items-center rounded-full border border-line shadow-search",
+          "grid h-[66px] grid-cols-[1.1fr_1fr_1.1fr] items-center rounded-full border border-line shadow-search",
           panel ? "bg-bg-secondary" : "bg-bg-elevated",
         )}
       >
@@ -120,7 +120,11 @@ export function SearchBar({
           <ClearButton show={panel === "where" && !!state.location} onClick={() => setState({ ...state, location: "" })} />
         </div>
 
-        <button type="button" className={clsx(segment("when"), "border-l border-line-light")} onClick={() => setPanel("when")}>
+        <button
+          type="button"
+          className={clsx(segment("when"), !panel && "before:absolute before:left-0 before:top-1/2 before:h-8 before:w-px before:-translate-y-1/2 before:bg-line")}
+          onClick={() => setPanel("when")}
+        >
           <span className="text-xs font-semibold">When</span>
           <span className={clsx("truncate text-sm", dates ? "text-fg" : "text-fg-secondary")}>{dates ?? "Add dates"}</span>
           <ClearButton
@@ -132,7 +136,7 @@ export function SearchBar({
         <div
           role="button"
           tabIndex={0}
-          className={clsx(segment("who"), "border-l border-line-light pr-2")}
+          className={clsx(segment("who"), "pr-2", !panel && "before:absolute before:left-0 before:top-1/2 before:h-8 before:w-px before:-translate-y-1/2 before:bg-line")}
           onClick={() => setPanel("who")}
         >
           <div className="flex items-center justify-between gap-2">

@@ -6,7 +6,34 @@ import { useEffect, useRef, useState } from "react";
 
 import type { ListingCard } from "@/lib/types";
 
+import { imageUrl } from "@/lib/format";
+
 import { CompactListingCard } from "./ListingCard";
+
+/** Last tile of a row: a fanned stack of photos and "See all", linking to the full search. */
+function SeeAllCard({ href, photos }: { href: string; photos: string[] }) {
+  const tilt = ["-rotate-6 -translate-x-6", "rotate-3 translate-x-5 -translate-y-2", "-rotate-1 translate-y-3"];
+  return (
+    <Link href={href} className="group block snap-start">
+      <div className="grid aspect-[20/19] place-items-center rounded-[20px] bg-bg-elevated shadow-card transition group-hover:shadow-pop">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative h-20 w-24">
+            {photos.map((src, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={src + i}
+                src={imageUrl(src, 200)}
+                alt=""
+                className={`absolute inset-0 m-auto h-16 w-16 rounded-lg border-2 border-white object-cover shadow-md transition group-hover:scale-105 ${tilt[i]}`}
+              />
+            ))}
+          </div>
+          <span className="text-sm font-semibold">See all</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 /** A horizontally scrolling row of cards with a title link and prev/next buttons. */
 export function ListingRow({ title, subtitle, href, items }: { title: string; subtitle?: string; href: string; items: ListingCard[] }) {
@@ -59,6 +86,7 @@ export function ListingRow({ title, subtitle, href, items }: { title: string; su
             <CompactListingCard listing={l} href={`/rooms/${l.id}`} />
           </div>
         ))}
+        <SeeAllCard href={href} photos={items.slice(0, 3).map((l) => l.photos[0])} />
       </div>
     </section>
   );

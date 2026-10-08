@@ -58,7 +58,7 @@ export function CompactListingCard({ listing, href }: { listing: Listing; href: 
         <HeartButton listing={listing} className="absolute right-1.5 top-1.5" />
       </div>
       <div className="mt-2 px-0.5">
-        <h3 className="truncate text-[13px] font-medium leading-4">{listingHeadline(listing)}</h3>
+        <h3 className="line-clamp-2 text-[13px] font-medium leading-4">{listingHeadline(listing)}</h3>
         <p className="mt-0.5 text-[12px] leading-4 text-fg-secondary">
           <Price listing={listing} size="sm" />
           {listing.average_rating && (

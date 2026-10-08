@@ -79,7 +79,7 @@ const json = (body: unknown) => JSON.stringify(body);
 export const api = {
   // Reference & public data
   meta: () => request<Meta>("/api/meta"),
-  home: () => request<HomeSection[]>("/api/home"),
+  home: (group: "city" | "category" = "city") => request<HomeSection[]>(`/api/home${toQuery({ group })}`),
   destinations: (q: string) => request<Destination[]>(`/api/destinations${toQuery({ q })}`),
   search: (params: Query) => request<Paginated>(`/api/listings${toQuery(params)}`),
   listing: (id: number | string) => request<ListingDetail>(`/api/listings/${id}`),

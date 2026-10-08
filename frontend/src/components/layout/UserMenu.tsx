@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleUserRound, Menu, Moon, Sun, SunMoon } from "lucide-react";
+import { CircleHelp, CircleUserRound, Globe, Heart, Luggage, Menu, MessageSquare, Moon, Sun, SunMoon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -35,7 +35,8 @@ export function UserMenu({ hosting = false }: { hosting?: boolean }) {
     router.push(hosting ? "/" : "/host");
   }
 
-  const item = "block w-full px-4 py-3 text-left text-sm hover:bg-bg-hover";
+  const item = "flex w-full items-center gap-3 px-6 py-3 text-left hover:bg-bg-hover";
+  const close = () => setOpen(false);
   const themes: { value: Theme; icon: React.ReactNode; label: string }[] = [
     { value: "light", icon: <Sun size={14} />, label: "Light" },
     { value: "dark", icon: <Moon size={14} />, label: "Dark" },
@@ -64,33 +65,34 @@ export function UserMenu({ hosting = false }: { hosting?: boolean }) {
           <Menu size={18} />
         </button>
         {open && (
-          <div className="animate-fade-in absolute right-0 top-12 z-[1100] w-64 overflow-hidden rounded-2xl bg-bg-elevated py-2 shadow-pop">
-            {user ? (
+          <div className="animate-fade-in absolute right-0 top-14 z-[1100] w-[300px] overflow-hidden rounded-2xl bg-bg-elevated py-2 shadow-pop">
+            {user && (
               <>
-                <Link href="/wishlists" className={item} onClick={() => setOpen(false)}>Wishlists</Link>
-                <Link href="/trips" className={item} onClick={() => setOpen(false)}>Trips</Link>
-                <Link href="/messages" className={item} onClick={() => setOpen(false)}>Messages</Link>
-                <Link href="/account" className={item} onClick={() => setOpen(false)}>Profile</Link>
-                <hr className="my-2 border-line-light" />
-                {user.is_host && (
-                  <>
-                    <Link href="/host" className={item} onClick={() => setOpen(false)}>Host dashboard</Link>
-                    <Link href="/host/listings/new" className={item} onClick={() => setOpen(false)}>Create a new listing</Link>
-                  </>
-                )}
-                {!user.is_host && <button className={item} onClick={switchToHosting}>Become a host</button>}
-              </>
-            ) : (
-              <>
-                <button className={clsx(item, "font-semibold")} onClick={() => { setOpen(false); openLogin(); }}>
-                  Log in or sign up
-                </button>
-                <hr className="my-2 border-line-light" />
-                <button className={item} onClick={switchToHosting}>Become a host</button>
+                <Link href="/wishlists" className={item} onClick={close}>
+                  <Heart size={18} /> Wishlists
+                </Link>
+                <Link href="/trips" className={item} onClick={close}>
+                  <Luggage size={18} /> Trips
+                </Link>
+                <Link href="/messages" className={item} onClick={close}>
+                  <MessageSquare size={18} /> Messages
+                </Link>
+                <Link href="/account" className={item} onClick={close}>
+                  <CircleUserRound size={18} /> Profile
+                </Link>
+                <hr className="mx-6 my-2 border-line-light" />
               </>
             )}
-            <div className="flex items-center justify-between px-4 py-3 text-sm">
-              <span>Theme</span>
+            <button className={item} onClick={() => { close(); toast({ message: "English (IN) · ₹ INR. More languages coming soon." }); }}>
+              <Globe size={18} /> Languages &amp; currency
+            </button>
+            <Link href="/help" className={item} onClick={close}>
+              <CircleHelp size={18} /> Help Centre
+            </Link>
+            <div className="flex items-center justify-between px-6 py-3">
+              <span className="flex items-center gap-3">
+                <SunMoon size={18} /> Theme
+              </span>
               <div className="flex rounded-full bg-bg-secondary p-0.5">
                 {themes.map((t) => (
                   <button
@@ -105,22 +107,41 @@ export function UserMenu({ hosting = false }: { hosting?: boolean }) {
                 ))}
               </div>
             </div>
-            <Link href="/help" className={item} onClick={() => setOpen(false)}>Help Centre</Link>
-            {user && (
+            <hr className="mx-6 my-2 border-line-light" />
+            {user?.is_host ? (
               <>
-                <hr className="my-2 border-line-light" />
-                <button
-                  className={item}
-                  onClick={() => {
-                    setOpen(false);
-                    logout();
-                    toast({ message: "You've been logged out" });
-                    router.push("/");
-                  }}
-                >
-                  Log out
-                </button>
+                <Link href="/host" className={item} onClick={close}>Host dashboard</Link>
+                <Link href="/host/listings/new" className={item} onClick={close}>Create a new listing</Link>
               </>
+            ) : (
+              <button className="flex w-full items-center gap-3 px-6 py-3 text-left hover:bg-bg-hover" onClick={switchToHosting}>
+                <span className="flex-1">
+                  <span className="block font-medium">Become a host</span>
+                  <span className="block text-sm text-fg-secondary">It&apos;s easy to start hosting and earn extra income.</span>
+                </span>
+                <span className="text-4xl" aria-hidden>🧳</span>
+              </button>
+            )}
+            <hr className="mx-6 my-2 border-line-light" />
+            <button className={item} onClick={() => { close(); toast({ message: "Referrals are coming soon" }); }}>Refer a host</button>
+            <button className={item} onClick={() => { close(); toast({ message: "Co-hosting is coming soon" }); }}>Find a co-host</button>
+            <hr className="mx-6 my-2 border-line-light" />
+            {user ? (
+              <button
+                className={item}
+                onClick={() => {
+                  close();
+                  logout();
+                  toast({ message: "You've been logged out" });
+                  router.push("/");
+                }}
+              >
+                Log out
+              </button>
+            ) : (
+              <button className={item} onClick={() => { close(); openLogin(); }}>
+                Log in or sign up
+              </button>
             )}
           </div>
         )}

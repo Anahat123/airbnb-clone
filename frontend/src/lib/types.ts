@@ -87,6 +87,7 @@ export interface HomeSection {
   title: string;
   subtitle: string;
   city: string;
+  search_query: string;
   items: ListingCard[];
 }
 

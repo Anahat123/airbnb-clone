@@ -100,9 +100,65 @@ def destinations(q: str = "", db: Session = Depends(get_db)):
     ]
 
 
+CATEGORY_TITLES = {
+    "trending": "Trending homes",
+    "amazing-views": "Homes with amazing views",
+    "beachfront": "Beachfront stays",
+    "cabins": "Cosy cabins",
+    "lakefront": "Lakefront homes",
+    "top-cities": "Stays in top cities",
+    "amazing-pools": "Homes with amazing pools",
+    "countryside": "Countryside escapes",
+}
+CATEGORY_BLURBS = {
+    "amazing-pools": "Dive into homes with a pool of their own",
+    "cabins": "Cosy hideaways in the woods and mountains",
+    "beachfront": "Wake up steps from the sea",
+    "amazing-views": "Rooms with a view worth the trip",
+    "lakefront": "Homes on the water's edge",
+    "countryside": "Slow down in farms and villages",
+    "top-cities": "Stay close to the action",
+    "trending": "Homes guests are booking right now",
+}
+
+
+def _home_row(db: Session, rating, where) -> list[Listing]:
+    return db.scalars(
+        _card_query()
+        .outerjoin(rating, rating.c.listing_id == Listing.id)
+        .where(where)
+        .order_by(desc(func.coalesce(rating.c.avg_rating, 0)), Listing.id)
+        .limit(10)
+    ).all()
+
+
 @router.get("/home", response_model=list[schemas.HomeSection])
-def home_sections(db: Session = Depends(get_db)):
-    """Home page carousels: one row per popular city, best-rated first."""
+def home_sections(group: Literal["city", "category"] = "city", db: Session = Depends(get_db)):
+    """Home page carousels, best-rated first: one row per popular city (All tab)
+    or per category (Homes tab)."""
+    rating = ratings.rating_subquery()
+
+    if group == "category":
+        top = db.execute(
+            select(Category.slug, Category.name, Category.id)
+            .join(Listing, Listing.category_id == Category.id)
+            .where(Listing.is_active.is_(True))
+            .group_by(Category.id)
+            .having(func.count(Listing.id) >= 3)
+            .order_by(desc(func.count(Listing.id)), Category.id)
+            .limit(6)
+        ).all()
+        return [
+            schemas.HomeSection(
+                title=CATEGORY_TITLES.get(slug, name),
+                subtitle=CATEGORY_BLURBS.get(slug, "Guests often rate these homes highly"),
+                city="",
+                search_query=f"category={slug}",
+                items=serializers.listing_cards(db, _home_row(db, rating, Listing.category_id == cid)),
+            )
+            for slug, name, cid in top
+        ]
+
     cities = db.execute(
         select(Listing.city)
         .where(Listing.is_active.is_(True))
@@ -111,20 +167,19 @@ def home_sections(db: Session = Depends(get_db)):
         .limit(6)
     ).scalars()
 
-    rating = ratings.rating_subquery()
     sections = []
     for i, city in enumerate(cities):
-        listings = db.scalars(
-            _card_query()
-            .outerjoin(rating, rating.c.listing_id == Listing.id)
-            .where(Listing.city == city)
-            .order_by(desc(func.coalesce(rating.c.avg_rating, 0)), Listing.id)
-            .limit(10)
-        ).all()
+        listings = _home_row(db, rating, Listing.city == city)
         title = HOME_SECTION_TITLES[i % len(HOME_SECTION_TITLES)].format(city=city)
         subtitle = CITY_BLURBS.get(city, "Guests often rate these homes highly")
         sections.append(
-            schemas.HomeSection(title=title, subtitle=subtitle, city=city, items=serializers.listing_cards(db, listings))
+            schemas.HomeSection(
+                title=title,
+                subtitle=subtitle,
+                city=city,
+                search_query=f"location={city}",
+                items=serializers.listing_cards(db, listings),
+            )
         )
     return sections
 
