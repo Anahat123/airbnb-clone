@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
@@ -23,6 +25,16 @@ import { RatingStar, Skeleton } from "@/components/ui/primitives";
 import { api, ApiError } from "@/lib/api";
 import { plural, rating, roomTypeLabel } from "@/lib/format";
 
+export async function generateMetadata({ params }: PageProps<"/rooms/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const l = await api.listing(id);
+    return { title: `${l.title} - ${l.property_type}s for Rent in ${l.city}, ${l.state}`, description: l.description.slice(0, 160) };
+  } catch {
+    return { title: "Listing" };
+  }
+}
+
 async function ListingContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   let listing, availability;
@@ -37,11 +49,20 @@ async function ListingContent({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <BookingProvider listing={listing} availability={availability}>
-      <div className="flex items-end justify-between gap-4 pb-6 pt-6 max-md:order-2">
+      <div className="flex items-end justify-between gap-4 pb-6 pt-6 max-md:-order-1">
         <h1 className="text-[22px] font-semibold md:text-[26px]">{listing.title}</h1>
         <TitleActions listingId={listing.id} photos={listing.photos} />
       </div>
-      <PhotoGallery photos={listing.photos} title={listing.title} listingId={listing.id} />
+      <div className="relative max-md:-order-2">
+        <Link
+          href="/"
+          aria-label="Back"
+          className="absolute left-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full bg-white text-[#222] shadow md:hidden"
+        >
+          ‹
+        </Link>
+        <PhotoGallery photos={listing.photos} title={listing.title} listingId={listing.id} />
+      </div>
 
       <div className="grid gap-x-20 md:grid-cols-[minmax(0,1fr)_minmax(0,372px)] lg:gap-x-24">
         <div>

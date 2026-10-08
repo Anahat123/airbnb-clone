@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     database_url: str = f"sqlite:///{BASE_DIR / 'airbnb.db'}"
     # Comma-separated list of origins allowed to call the API (the Next.js frontend).
     cors_origins: str = "http://localhost:3000"
+    # Optional regex for extra origins, e.g. Vercel preview deployments: https://.*\.vercel\.app
+    cors_origin_regex: str | None = None
     # Used to sign the mock auth tokens. Override in production.
     secret_key: str = "dev-secret-change-me"
     # Seed the database on startup when it is empty (handy on hosts with ephemeral disks).

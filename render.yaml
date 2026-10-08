@@ -1,0 +1,27 @@
+# Render Blueprint: deploys the FastAPI backend. (The Next.js frontend is deployed on Vercel.)
+services:
+  - type: web
+    name: airbnb-clone-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SEED_ON_STARTUP
+        value: "true"
+      - key: CORS_ORIGINS
+        sync: false # set to your Vercel URL, e.g. https://airbnb-clone.vercel.app
+      - key: CORS_ORIGIN_REGEX
+        value: https://.*\.vercel\.app
+      - key: PUBLIC_BASE_URL
+        sync: false # this service's URL, e.g. https://airbnb-clone-api.onrender.com
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_UPLOAD_PRESET
+        sync: false
