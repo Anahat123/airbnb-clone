@@ -4,6 +4,8 @@ import { Footer } from "@/components/layout/Footer";
 import { Header, HeaderFallback } from "@/components/layout/Header";
 import { ListingCardSkeleton } from "@/components/listings/ListingCard";
 import { ListingRow } from "@/components/listings/ListingRow";
+
+import { Inspiration } from "./Inspiration";
 import { ApiOffline } from "@/components/ui/ApiOffline";
 import { api } from "@/lib/api";
 
@@ -59,7 +61,10 @@ export function HomePage({ group }: { group: Group }) {
           <Sections group={group} />
         </Suspense>
       </main>
-      <Footer />
+      <div className="mt-16">
+        <Inspiration />
+      </div>
+      <Footer flush />
     </>
   );
 }

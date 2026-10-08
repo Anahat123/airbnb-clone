@@ -87,6 +87,7 @@ def listing_detail(db: Session, listing: Listing) -> schemas.ListingDetail:
         host=host_summary(db, listing.host),
         rating_breakdown=schemas.RatingBreakdown(**ratings.category_averages(db, listing.id)),
         rating_distribution=ratings.rating_distribution(db, listing.id),
+        review_mentions=ratings.review_mentions(db, listing.id),
         is_active=listing.is_active,
         created_at=listing.created_at,
     )

@@ -1,6 +1,7 @@
 "use client";
 
-import { format, parseISO } from "date-fns";
+import { differenceInCalendarDays, format, formatDistanceToNowStrict, parseISO } from "date-fns";
+import Link from "next/link";
 import { CircleCheck, KeyRound, Map, MessageSquare, SprayCan, Tag } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -21,8 +22,17 @@ const CATEGORIES: { key: RatingKey; label: string; icon: React.ReactNode }[] = [
   { key: "value", label: "Value", icon: <Tag size={28} strokeWidth={1.3} /> },
 ];
 
+/** "2 days ago" / "3 weeks ago" for recent reviews, "March 2026" for older ones, like Airbnb. */
+function reviewDate(iso: string) {
+  const d = parseISO(iso);
+  if (differenceInCalendarDays(new Date(), d) < 60) return formatDistanceToNowStrict(d, { addSuffix: true });
+  return format(d, "MMMM yyyy");
+}
+
 function ReviewItem({ review, clamp = true }: { review: Review; clamp?: boolean }) {
+  const [expanded, setExpanded] = useState(false);
   const since = new Date().getFullYear() - new Date(review.author.created_at).getFullYear();
+  const long = clamp && review.comment.length > 180;
   return (
     <article>
       <div className="mb-3 flex items-center gap-3">
@@ -34,9 +44,14 @@ function ReviewItem({ review, clamp = true }: { review: Review; clamp?: boolean 
       </div>
       <div className="mb-1 flex items-center gap-2 text-sm">
         <StarRow value={review.rating} size={9} />
-        <span className="font-semibold">· {format(parseISO(review.created_at), "MMMM yyyy")}</span>
+        <span className="text-fg-secondary">· {reviewDate(review.created_at)}</span>
       </div>
-      <p className={clamp ? "line-clamp-3 leading-6" : "leading-6"}>{review.comment}</p>
+      <p className={clamp && !expanded ? "line-clamp-3 leading-6" : "leading-6"}>{review.comment}</p>
+      {long && !expanded && (
+        <button onClick={() => setExpanded(true)} className="mt-2 font-semibold underline">
+          Show more
+        </button>
+      )}
     </article>
   );
 }
@@ -82,7 +97,18 @@ export function Reviews({ listing }: { listing: ListingDetail }) {
             <span className="text-[64px] font-semibold leading-none tracking-tight md:text-[88px]">{rating(listing.average_rating)}</span>
           </Laurels>
           <h2 className="mt-2 text-[22px] font-medium">Guest favourite</h2>
-          <p className="mx-auto mt-1 max-w-xs text-fg-secondary">One of the most loved homes on Airbnb based on ratings, reviews and reliability</p>
+          <p className="mx-auto mt-1 max-w-sm text-lg text-fg-secondary">
+            {(listing.average_rating ?? 0) >= 4.95 && listing.review_count >= 10 ? (
+              <>
+                This home is in the <strong className="text-fg">top 10%</strong> of eligible listings based on ratings, reviews and reliability
+              </>
+            ) : (
+              "One of the most loved homes on Airbnb based on ratings, reviews and reliability"
+            )}
+          </p>
+          <Link href="/help" className="mt-3 inline-block text-sm text-fg-secondary underline">
+            How reviews work
+          </Link>
         </div>
       ) : (
         <h2 className="mb-8 flex items-center gap-2 text-[22px] font-medium">
@@ -105,13 +131,28 @@ export function Reviews({ listing }: { listing: ListingDetail }) {
         {CATEGORIES.map((c) => (
           <div key={c.key} className="flex min-w-[110px] flex-col justify-between border-l border-line-light px-4">
             <div>
-              <div className="text-sm font-semibold">{c.label}</div>
-              <div className="text-lg font-semibold">{listing.rating_breakdown[c.key]?.toFixed(1) ?? "–"}</div>
+              <div className="text-sm font-medium">{c.label}</div>
+              <div className="text-sm">{listing.rating_breakdown[c.key]?.toFixed(1) ?? "–"}</div>
             </div>
             <span className="mt-6">{c.icon}</span>
           </div>
         ))}
       </div>
+
+      {listing.review_mentions.length > 0 && (
+        <div className="mb-10">
+          <h3 className="mb-5 text-[22px] font-medium">Guests mention</h3>
+          <div className="flex flex-wrap gap-3">
+            {listing.review_mentions.map((m) => (
+              <span key={m.label} className="flex items-center gap-2 rounded-2xl border border-line-light px-5 py-3 shadow-sm">
+                <span aria-hidden>{m.emoji}</span>
+                <span className="font-medium">{m.label}</span>
+                <span className="text-fg-secondary">{m.count}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-x-24 gap-y-10 md:grid-cols-2">
         {first === null
@@ -121,8 +162,8 @@ export function Reviews({ listing }: { listing: ListingDetail }) {
 
       {listing.review_count > 6 && (
         <Button
-          variant="outline"
-          className="mt-10 !rounded-lg bg-bg-secondary !border-transparent"
+          variant="grey"
+          className="mt-10"
           onClick={() => {
             setOpen(true);
             if (page === 0) loadMore();

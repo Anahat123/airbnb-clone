@@ -2,14 +2,15 @@ import { Globe } from "lucide-react";
 import Link from "next/link";
 
 const COLUMNS = [
-  { title: "Support", links: ["Help Centre", "Get help with a safety issue", "AirCover", "Anti-discrimination", "Disability support", "Cancellation options"] },
-  { title: "Hosting", links: ["Airbnb your home", "Airbnb your experience", "AirCover for Hosts", "Hosting resources", "Community forum", "Hosting responsibly"] },
-  { title: "Airbnb", links: ["2025 Summer Release", "Newsroom", "Careers", "Investors", "Gift cards", "Airbnb.org emergency stays"] },
+  { title: "Support", links: ["Help Centre", "Get help with a safety issue", "AirCover", "Anti-discrimination", "Disability support", "Cancellation options", "Report neighbourhood concern"] },
+  { title: "Hosting", links: ["Airbnb your home", "Airbnb your experience", "Airbnb your service", "AirCover for Hosts", "Hosting resources", "Community forum", "Hosting responsibly"] },
+  { title: "Airbnb", links: ["2026 Summer Release", "Newsroom", "Careers", "Investors", "Airbnb.org emergency stays"] },
 ];
 
-export function Footer() {
+/** `flush` removes the top gap and border, when a grey section (e.g. Inspiration) sits directly above. */
+export function Footer({ flush = false }: { flush?: boolean }) {
   return (
-    <footer className="mt-16 border-t border-line-light bg-bg-secondary pb-24 md:pb-0">
+    <footer className={`bg-bg-secondary pb-24 md:pb-0 ${flush ? "" : "mt-16 border-t border-line-light"}`}>
       <div className="mx-auto max-w-[1440px] px-6 md:px-10 xl:px-12">
         <div className="grid gap-8 border-b border-line-light py-12 md:grid-cols-3">
           {COLUMNS.map((col) => (

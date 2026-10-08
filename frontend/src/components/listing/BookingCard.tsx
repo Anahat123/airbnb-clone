@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { format } from "date-fns";
-import { ChevronDown, ChevronUp, Flag } from "lucide-react";
+import { ChevronDown, ChevronUp, Flag, Tag } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -46,6 +46,9 @@ export function BookingCard() {
 
   return (
     <div>
+      <div className="mb-6 flex items-center justify-center gap-2 rounded-xl border border-line-light py-4 text-sm font-medium shadow-card">
+        <Tag size={18} className="fill-rausch text-rausch" /> Prices include all fees
+      </div>
       <div className="rounded-xl border border-line-light p-6 shadow-card">
         {quote && checkIn && checkOut ? (
           <p className="mb-6">

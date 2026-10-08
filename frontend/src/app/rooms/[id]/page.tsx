@@ -8,6 +8,8 @@ import { Header, HeaderFallback } from "@/components/layout/Header";
 import { AvailabilitySection } from "@/components/listing/AvailabilitySection";
 import { BookingCard, MobileBookingBar } from "@/components/listing/BookingCard";
 import { BookingProvider } from "@/components/listing/BookingContext";
+import { ExploreNearby } from "@/components/listing/ExploreNearby";
+import { ListingNav } from "@/components/listing/ListingNav";
 import { LocationSection } from "@/components/listing/LocationSection";
 import { PhotoGallery, TitleActions } from "@/components/listing/PhotoGallery";
 import { Reviews } from "@/components/listing/Reviews";
@@ -37,9 +39,9 @@ export async function generateMetadata({ params }: PageProps<"/rooms/[id]">): Pr
 
 async function ListingContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  let listing, availability;
+  let listing, availability, destinations;
   try {
-    [listing, availability] = await Promise.all([api.listing(id), api.availability(id)]);
+    [listing, availability, destinations] = await Promise.all([api.listing(id), api.availability(id), api.destinations("")]);
   } catch (e) {
     if (e instanceof ApiError && (e.status === 404 || e.status === 422)) notFound();
     return <ApiOffline />;
@@ -49,11 +51,12 @@ async function ListingContent({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <BookingProvider listing={listing} availability={availability}>
+      <ListingNav />
       <div className="flex items-end justify-between gap-4 pb-6 pt-6 max-md:-order-1">
         <h1 className="text-[22px] font-medium md:text-[26px]">{listing.title}</h1>
         <TitleActions listingId={listing.id} photos={listing.photos} />
       </div>
-      <div className="relative max-md:-order-2">
+      <div id="photos" className="relative max-md:-order-2">
         <Link
           href="/"
           aria-label="Back"
@@ -113,6 +116,7 @@ async function ListingContent({ params }: { params: Promise<{ id: string }> }) {
       <LocationSection listing={listing} />
       <MeetHost host={listing.host} />
       <ThingsToKnow listing={listing} />
+      <ExploreNearby listing={listing} destinations={destinations} />
       <MobileBookingBar />
     </BookingProvider>
   );
@@ -142,12 +146,12 @@ export default function ListingPage({ params }: PageProps<"/rooms/[id]">) {
           <Header variant="compact" sticky={false} />
         </div>
       </Suspense>
-      <main className="mx-auto flex max-w-[1120px] flex-col px-6 pb-24 md:block md:px-10 xl:px-0">
+      <main className="mx-auto flex max-w-[1120px] flex-col px-6 md:block md:px-10 xl:px-0">
         <Suspense fallback={<ListingSkeleton />}>
           <ListingContent params={params} />
         </Suspense>
       </main>
-      <Footer />
+      <Footer flush />
     </>
   );
 }

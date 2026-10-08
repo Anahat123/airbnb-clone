@@ -76,6 +76,27 @@ def rating_distribution(db: Session, listing_id: int) -> dict[int, int]:
     return counts
 
 
+# "Guests mention" topics: a review counts toward a topic if it uses any of its keywords.
+MENTION_TOPICS: list[tuple[str, str, tuple[str, ...]]] = [
+    ("Cleanliness", "🧴", ("clean", "spotless")),
+    ("Hospitality", "🎁", ("host", "helpful", "caretaker", "friendly")),
+    ("Location", "📍", ("location", "walking distance", "walk")),
+    ("Comfort", "🛋️", ("comfortable", "cosy", "cozy", "bed")),
+    ("Views", "🌅", ("view", "sunset")),
+    ("Value", "🏷️", ("value", "worth")),
+]
+
+
+def review_mentions(db: Session, listing_id: int) -> list[dict]:
+    comments = [c.lower() for c in db.scalars(select(Review.comment).where(Review.listing_id == listing_id))]
+    out = []
+    for label, emoji, words in MENTION_TOPICS:
+        count = sum(1 for c in comments if any(w in c for w in words))
+        if count:
+            out.append({"label": label, "emoji": emoji, "count": count})
+    return sorted(out, key=lambda m: -m["count"])
+
+
 def host_stats(db: Session, host_ids: list[int]) -> dict[int, RatingStats]:
     """Ratings across all of a host's listings (used for Superhost)."""
     if not host_ids:

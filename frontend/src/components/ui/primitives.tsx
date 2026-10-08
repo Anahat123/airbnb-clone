@@ -7,7 +7,7 @@ import { forwardRef } from "react";
 /* ---------- Buttons ---------- */
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "dark" | "outline" | "ghost";
+  variant?: "primary" | "dark" | "outline" | "ghost" | "grey";
   size?: "md" | "lg";
   loading?: boolean;
 };
@@ -27,6 +27,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         variant === "dark" && "bg-fg text-bg hover:opacity-90",
         variant === "outline" && "border border-fg bg-transparent hover:bg-bg-hover",
         variant === "ghost" && "underline hover:bg-bg-hover",
+        variant === "grey" && "bg-[#f2f2f2] font-medium text-[#222] hover:bg-[#ebebeb] dark:bg-bg-secondary dark:text-fg",
         className,
       )}
       {...props}

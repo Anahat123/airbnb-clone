@@ -111,6 +111,7 @@ export interface ListingDetail extends ListingCard {
   host: HostSummary;
   rating_breakdown: Partial<Record<RatingKey, number | null>>;
   rating_distribution: Record<string, number>;
+  review_mentions: { label: string; emoji: string; count: number }[];
   is_active: boolean;
   created_at: string;
 }

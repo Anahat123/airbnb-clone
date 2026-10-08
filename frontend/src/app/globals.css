@@ -71,6 +71,8 @@
 
 html {
   background: var(--bg);
+  /* Full-bleed bands use 100vw, which includes the scrollbar; never scroll sideways. */
+  overflow-x: clip;
 }
 
 body {

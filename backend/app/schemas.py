@@ -144,6 +144,12 @@ class RatingBreakdown(BaseModel):
     value: float | None = None
 
 
+class ReviewMention(BaseModel):
+    label: str
+    emoji: str
+    count: int
+
+
 class ListingDetail(ListingCard):
     description: str
     address: str
@@ -155,6 +161,7 @@ class ListingDetail(ListingCard):
     host: HostSummary
     rating_breakdown: RatingBreakdown
     rating_distribution: dict[int, int]
+    review_mentions: list[ReviewMention]
     is_active: bool
     created_at: datetime
 

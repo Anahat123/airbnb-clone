@@ -62,12 +62,13 @@ export function Header({
 
   const big = variant === "expanded" ? !scrolled || expanded : expanded;
   // The search page continues the header's grey band into its filter bar.
-  const banded = variant === "compact" && pathname === "/s" && !expanded;
+  const explore = pathname === "/" || pathname === "/homes";
+  const banded = (variant === "compact" && pathname === "/s" && !expanded) || (variant === "expanded" && !big);
   const hosting = pathname.startsWith("/host");
 
   const checkIn = parseDay(search.checkIn);
   const checkOut = parseDay(search.checkOut);
-  const when = checkIn && checkOut ? `${format(checkIn, "d MMM")} – ${format(checkOut, "d MMM")}` : "Any week";
+  const when = checkIn && checkOut ? `${format(checkIn, "d MMM")} – ${format(checkOut, "d MMM")}` : explore ? "Anytime" : "Any week";
   const where = search.location ? search.location.split(",")[0] : "Anywhere";
 
   return (
@@ -137,12 +138,12 @@ export function Header({
                 >
                   <span className="flex items-center gap-2 px-3 font-medium">
                     <span className="text-xl leading-none">🏡</span>
-                    {search.location ? `Homes in ${where}` : "Homes nearby"}
+                    {search.location ? `Homes in ${where}` : explore ? "Anywhere" : "Homes nearby"}
                   </span>
                   <span className="h-6 w-px bg-line" />
                   <span className={clsx("px-4 font-medium", !checkIn && "text-fg")}>{when}</span>
                   <span className="h-6 w-px bg-line" />
-                  <span className={clsx("px-4", search.adults ? "font-medium" : "text-fg-secondary")}>{guestLabel(search)}</span>
+                  <span className={clsx("px-4", search.adults || explore ? "font-medium" : "text-fg-secondary")}>{guestLabel(search)}</span>
                   <span className="grid h-8 w-8 place-items-center rounded-full bg-rausch text-white">
                     <Search size={12} strokeWidth={4} />
                   </span>

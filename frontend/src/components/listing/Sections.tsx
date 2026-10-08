@@ -10,23 +10,39 @@ import { Avatar, Button } from "@/components/ui/primitives";
 import { rating, yearsSince, yearsSinceCount } from "@/lib/format";
 import type { Amenity, HostSummary, ListingDetail } from "@/lib/types";
 
-/** Laurel-wrapped badge for "Guest favourite" listings. */
-export function Laurels({ children, size = "md" }: { children: React.ReactNode; size?: "md" | "lg" }) {
-  const leaf = (flip: boolean) => (
-    <svg viewBox="0 0 20 32" className={size === "lg" ? "h-24 w-12" : "h-9 w-5"} style={{ transform: flip ? "scaleX(-1)" : undefined }} aria-hidden>
-      <g fill="currentColor">
-        {[4, 9, 14, 19, 24].map((y, i) => (
-          <ellipse key={y} cx={6 + i * 0.6} cy={y} rx="2.6" ry="4.6" transform={`rotate(${-35 + i * 8} ${6 + i * 0.6} ${y})`} />
-        ))}
-        <path d="M14 30C7 26 3 18 4 4" stroke="currentColor" strokeWidth="1.3" fill="none" />
-      </g>
+/** One laurel branch: leaves fanned along a curved stem (mirrored for the right side). */
+function LaurelBranch({ flip, large }: { flip?: boolean; large?: boolean }) {
+  const leaves = Array.from({ length: 7 }, (_, i) => {
+    const t = i / 6;
+    const x = 15 - Math.sin(t * Math.PI * 0.55) * 9; // stem curves outwards then back in
+    const y = 44 - t * 38;
+    const angle = -55 + t * 40;
+    return { x, y, angle, size: 1 - t * 0.35 };
+  });
+  return (
+    <svg
+      viewBox="0 0 24 50"
+      className={large ? "h-28 w-14" : "h-10 w-5"}
+      style={flip ? { transform: "scaleX(-1)" } : undefined}
+      aria-hidden
+    >
+      <path d="M16 47 C 6 38, 4 22, 9 5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      {leaves.map((l, i) => (
+        <g key={i} transform={`translate(${l.x} ${l.y}) rotate(${l.angle})`}>
+          <path d={`M0 0 C ${-3 * l.size} ${-3 * l.size}, ${-3 * l.size} ${-8 * l.size}, 0 ${-10 * l.size} C ${3 * l.size} ${-8 * l.size}, ${3 * l.size} ${-3 * l.size}, 0 0Z`} fill="currentColor" />
+        </g>
+      ))}
     </svg>
   );
+}
+
+/** Laurel-wrapped badge for "Guest favourite" listings. */
+export function Laurels({ children, size = "md" }: { children: React.ReactNode; size?: "md" | "lg" }) {
   return (
-    <div className="flex items-center gap-1">
-      {leaf(false)}
+    <div className="flex items-center justify-center gap-1">
+      <LaurelBranch large={size === "lg"} />
       {children}
-      {leaf(true)}
+      <LaurelBranch flip large={size === "lg"} />
     </div>
   );
 }
@@ -107,7 +123,7 @@ export function Description({ text }: { text: string }) {
   return (
     <div className="py-8">
       <p className="line-clamp-6 whitespace-pre-line leading-6">{preview}</p>
-      <Button variant="outline" className="mt-6 !rounded-lg bg-bg-secondary !border-transparent" onClick={() => setOpen(true)}>
+      <Button variant="grey" className="mt-6" onClick={() => setOpen(true)}>
         Show more
       </Button>
       <Modal open={open} onClose={() => setOpen(false)} title="" size="lg">
@@ -118,25 +134,34 @@ export function Description({ text }: { text: string }) {
   );
 }
 
+// Safety items Airbnb lists as crossed out when a home doesn't have them.
+const SAFETY_CHECKS = ["Smoke alarm", "Carbon monoxide alarm"];
+
 export function Amenities({ amenities }: { amenities: Amenity[] }) {
   const [open, setOpen] = useState(false);
+  const missing = SAFETY_CHECKS.filter((name) => !amenities.some((a) => a.name === name));
+  const shown = amenities.slice(0, 10 - Math.min(missing.length, 1));
   const groups = amenities.reduce<Record<string, Amenity[]>>((acc, a) => ((acc[a.group] ??= []).push(a), acc), {});
   return (
-    <div className="py-12">
+    <div id="amenities" className="py-12">
       <h2 className="mb-6 text-[22px] font-medium">What this place offers</h2>
       <ul className="grid gap-4 sm:grid-cols-2">
-        {amenities.slice(0, 10).map((a) => (
+        {shown.map((a) => (
           <li key={a.id} className="flex items-center gap-4">
             <Icon name={a.icon} />
             {a.name}
           </li>
         ))}
+        {missing.slice(0, 1).map((name) => (
+          <li key={name} className="flex items-center gap-4 text-fg-secondary">
+            <Icon name="alarm-smoke" className="opacity-60" />
+            <span className="line-through">{name}</span>
+          </li>
+        ))}
       </ul>
-      {amenities.length > 10 && (
-        <Button variant="outline" className="mt-8 !rounded-lg bg-bg-secondary !border-transparent" onClick={() => setOpen(true)}>
-          Show all {amenities.length} amenities
-        </Button>
-      )}
+      <button className="mt-8 rounded-lg bg-[#f2f2f2] px-6 py-3 font-medium text-[#222] hover:bg-[#ebebeb] dark:bg-bg-secondary dark:text-fg" onClick={() => setOpen(true)}>
+        Show all {amenities.length} amenities
+      </button>
       <Modal open={open} onClose={() => setOpen(false)} size="lg">
         <h2 className="mb-6 text-[26px] font-medium">What this place offers</h2>
         {Object.entries(groups).map(([group, items]) => (
@@ -150,6 +175,17 @@ export function Amenities({ amenities }: { amenities: Amenity[] }) {
             ))}
           </section>
         ))}
+        {missing.length > 0 && (
+          <section className="mb-8">
+            <h3 className="mb-2 text-lg font-semibold">Not included</h3>
+            {missing.map((name) => (
+              <div key={name} className="flex items-center gap-4 border-b border-line-light py-6 text-fg-secondary">
+                <Icon name="alarm-smoke" className="opacity-60" />
+                <span className="line-through">{name}</span>
+              </div>
+            ))}
+          </section>
+        )}
       </Modal>
     </div>
   );
