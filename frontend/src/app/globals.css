@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+/* Dark mode is toggled with a `dark` class on <html> (set before paint by an inline script). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Design tokens measured from airbnb.co.in (Rausch pink, Hof text, Foggy grey, ...).
+ * Components use the Tailwind names on the right, so dark mode only swaps these values.
+ */
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f7f7f7;
+  --bg-hover: #f7f7f7;
+  --bg-elevated: #ffffff;
+  --fg: #222222;
+  --fg-secondary: #6a6a6a;
+  --fg-tertiary: #929292;
+  --border: #dddddd;
+  --border-light: #ebebeb;
+  --rausch: #ff385c;
+  --rausch-dark: #e00b41;
+  --error: #c13515;
+  --success: #008a05;
+  --skeleton: #ebebeb;
+  --overlay: rgb(0 0 0 / 0.5);
+  --shadow-card: 0 6px 16px rgb(0 0 0 / 0.12);
+  --shadow-search: 0 3px 12px 0 rgb(0 0 0 / 0.1);
+  --shadow-pop: 0 2px 16px rgb(0 0 0 / 0.12);
+  --gradient-rausch: linear-gradient(to right, #e61e4d 0%, #e31c5f 50%, #d70466 100%);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-hover: #262626;
+  --bg-elevated: #1c1c1c;
+  --fg: #f2f2f2;
+  --fg-secondary: #a8a8a8;
+  --fg-tertiary: #7a7a7a;
+  --border: #3a3a3a;
+  --border-light: #2c2c2c;
+  --skeleton: #2a2a2a;
+  --overlay: rgb(0 0 0 / 0.7);
+  --shadow-card: 0 6px 16px rgb(0 0 0 / 0.5);
+  --shadow-search: 0 3px 12px 0 rgb(0 0 0 / 0.5);
+  --shadow-pop: 0 2px 16px rgb(0 0 0 / 0.5);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-tertiary: var(--fg-tertiary);
+  --color-line: var(--border);
+  --color-line-light: var(--border-light);
+  --color-rausch: var(--rausch);
+  --color-rausch-dark: var(--rausch-dark);
+  --color-error: var(--error);
+  --color-success: var(--success);
+  --color-skeleton: var(--skeleton);
+  --shadow-card: var(--shadow-card);
+  --shadow-search: var(--shadow-search);
+  --shadow-pop: var(--shadow-pop);
+  --font-sans: var(--font-figtree), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.bg-rausch-gradient {
+  background-image: var(--gradient-rausch);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* Skeleton shimmer used while data streams in. */
+@keyframes shimmer {
+  0% { opacity: 1; }
+  50% { opacity: 0.55; }
+  100% { opacity: 1; }
+}
+.skeleton {
+  background: var(--skeleton);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.28s cubic-bezier(0.2, 0, 0, 1);
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+/* Leaflet price pins, styled like Airbnb's map markers. */
+.price-pin {
+  background: var(--bg-elevated);
+  color: var(--fg);
+  border-radius: 28px;
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08), 0 2px 4px rgb(0 0 0 / 0.18);
+  transform: translate(-50%, -50%);
+  display: inline-block;
+  transition: transform 0.15s ease;
+  font-family: var(--font-sans);
+}
+.price-pin.active {
+  background: var(--fg);
+  color: var(--bg);
+  transform: translate(-50%, -50%) scale(1.08);
+  z-index: 1000;
+}
+.leaflet-container {
+  font-family: var(--font-sans);
+  background: var(--bg-secondary);
+}
+.dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  color: var(--fg);
+}
+.leaflet-popup-content {
+  margin: 0;
+  width: 280px !important;
+}
+.leaflet-popup-tip {
+  background: var(--bg-elevated);
+}
